@@ -82,11 +82,10 @@ jobs:
                   applicationId = "com.baqala.djamel"
                   minSdk = 23
                   targetSdk = 35
-                  versionCode = 1
-                  versionName = "1.0"
+                  versionCode = 2
+                  versionName = "1.1"
               }
 
-              // Use the same JVM target for Java and Kotlin compilation.
               compileOptions {
                   sourceCompatibility = JavaVersion.VERSION_17
                   targetCompatibility = JavaVersion.VERSION_17
@@ -112,6 +111,7 @@ jobs:
                   <activity
                       android:name=".MainActivity"
                       android:configChanges="orientation|screenSize|keyboardHidden"
+                      android:hardwareAccelerated="true"
                       android:exported="true">
                       <intent-filter>
                           <action android:name="android.intent.action.MAIN" />
@@ -142,19 +142,27 @@ jobs:
           import android.app.Activity
           import android.content.Intent
           import android.content.pm.PackageManager
-          import android.webkit.PermissionRequest
           import android.graphics.Color
           import android.net.Uri
           import android.os.Bundle
+          import android.view.View
+          import android.webkit.ConsoleMessage
+          import android.webkit.PermissionRequest
           import android.webkit.WebChromeClient
+          import android.webkit.WebResourceError
           import android.webkit.WebResourceRequest
           import android.webkit.WebView
           import android.webkit.WebViewClient
+          import android.widget.TextView
+          import android.widget.Button
+          import android.widget.LinearLayout
 
           class MainActivity : Activity() {
               private lateinit var webView: WebView
+              private var pendingCameraRequest: PermissionRequest? = null
               private val appUrl = "https://abdoubkl28-boop.github.io/Baqala-djamel/"
               private val appHost = "abdoubkl28-boop.github.io"
+              private val cameraRequestCode = 501
 
               @SuppressLint("SetJavaScriptEnabled")
               override fun onCreate(savedInstanceState: Bundle?) {
@@ -162,11 +170,11 @@ jobs:
                   window.statusBarColor = Color.rgb(247, 248, 250)
                   window.navigationBarColor = Color.rgb(247, 248, 250)
                   if (android.os.Build.VERSION.SDK_INT >= 23) {
-                      window.decorView.systemUiVisibility =
-                          android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                      window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
                   }
 
                   webView = WebView(this)
+                  webView.setBackgroundColor(Color.rgb(247, 248, 250))
                   setContentView(webView)
 
                   webView.settings.apply {
@@ -178,24 +186,45 @@ jobs:
                       javaScriptCanOpenWindowsAutomatically = false
                       setSupportMultipleWindows(false)
                       loadsImagesAutomatically = true
-                      mediaPlaybackRequiresUserGesture = true
+                      mediaPlaybackRequiresUserGesture = false
+                      useWideViewPort = true
+                      loadWithOverviewMode = true
                   }
 
                   webView.webChromeClient = object : WebChromeClient() {
                       override fun onPermissionRequest(request: PermissionRequest) {
                           runOnUiThread {
-                              val wantsVideo = request.resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE)
-                              if (wantsVideo && checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                              val wantsVideo = request.resources.contains(
+                                  PermissionRequest.RESOURCE_VIDEO_CAPTURE
+                              )
+                              if (!wantsVideo) {
+                                  request.deny()
+                              } else if (checkSelfPermission(android.Manifest.permission.CAMERA) ==
+                                  PackageManager.PERMISSION_GRANTED) {
                                   request.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
                               } else {
-                                  request.deny()
+                                  pendingCameraRequest = request
+                                  requestPermissions(
+                                      arrayOf(android.Manifest.permission.CAMERA),
+                                      cameraRequestCode
+                                  )
                               }
                           }
                       }
+
+                      override fun onPermissionRequestCanceled(request: PermissionRequest) {
+                          if (pendingCameraRequest == request) pendingCameraRequest = null
+                      }
+
+                      override fun onConsoleMessage(message: ConsoleMessage): Boolean {
+                          android.util.Log.d(
+                              "BaqalaWebView",
+                              "${message.message()} -- line ${message.lineNumber()}"
+                          )
+                          return true
+                      }
                   }
-                  if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                      requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 501)
-                  }
+
                   webView.webViewClient = object : WebViewClient() {
                       override fun shouldOverrideUrlLoading(
                           view: WebView?,
@@ -209,21 +238,55 @@ jobs:
                           }
                           return true
                       }
+
+                      override fun onReceivedError(
+                          view: WebView,
+                          request: WebResourceRequest,
+                          error: WebResourceError
+                      ) {
+                          super.onReceivedError(view, request, error)
+                          if (request.isForMainFrame) showLoadError(error.description.toString())
+                      }
                   }
 
-                  if (savedInstanceState != null) {
-                      webView.restoreState(savedInstanceState)
-                  } else {
-                      webView.loadUrl(appUrl)
+                  // Always load the live page on launch; do not restore a stale blank WebView state.
+                  webView.loadUrl(appUrl)
+              }
+
+              private fun showLoadError(details: String) {
+                  val safeDetails = details.replace("<", "&lt;").replace(">", "&gt;")
+                  val html = """
+                      <html><meta name="viewport" content="width=device-width, initial-scale=1">
+                      <body style="font-family:sans-serif;background:#f7f8fa;color:#222;text-align:center;padding:40px 20px;direction:rtl">
+                      <h3>تعذر تحميل تطبيق بقالة جمال</h3>
+                      <p>تحقق من اتصال الإنترنت ثم حاول مرة أخرى.</p>
+                      <p style="font-size:12px;color:#777">$safeDetails</p>
+                      <button onclick="location.href='$appUrl'" style="padding:12px 24px;background:#16865b;color:white;border:0;border-radius:8px">إعادة المحاولة</button>
+                      </body></html>
+                  """.trimIndent()
+                  webView.loadDataWithBaseURL(appUrl, html, "text/html", "UTF-8", null)
+              }
+
+              override fun onRequestPermissionsResult(
+                  requestCode: Int,
+                  permissions: Array<out String>,
+                  grantResults: IntArray
+              ) {
+                  super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+                  if (requestCode == cameraRequestCode) {
+                      val request = pendingCameraRequest
+                      pendingCameraRequest = null
+                      if (request != null) {
+                          if (grantResults.isNotEmpty() &&
+                              grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                              request.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
+                          } else {
+                              request.deny()
+                          }
+                      }
                   }
               }
 
-              override fun onSaveInstanceState(outState: Bundle) {
-                  webView.saveState(outState)
-                  super.onSaveInstanceState(outState)
-              }
-
-              @Deprecated("Deprecated in Android, retained for compatibility")
               override fun onBackPressed() {
                   if (::webView.isInitialized && webView.canGoBack()) {
                       webView.goBack()
@@ -233,7 +296,10 @@ jobs:
               }
 
               override fun onDestroy() {
+                  pendingCameraRequest?.deny()
+                  pendingCameraRequest = null
                   if (::webView.isInitialized) {
+                      webView.stopLoading()
                       webView.destroy()
                   }
                   super.onDestroy()
