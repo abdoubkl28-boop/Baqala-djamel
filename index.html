@@ -304,11 +304,25 @@ $("debtsPdf").onclick=printDebts;
 function printDaily(){const list=periodSales("day"),t=totals(list),lines=list.flatMap(s=>(s.items||[]).map(i=>({ ...i,when:s.createdAt?.toDate?s.createdAt.toDate():new Date()})));const html=`<div dir="rtl" style="font-family:Tahoma;padding:20px"><h2>بقالة جمال بوقلمون — تقرير المبيعات اليومي</h2><p>التاريخ: ${new Date().toLocaleDateString("ar-DZ")}</p><h3>إجمالي المبيعات: ${money(t.sales)} | الفائدة: ${money(t.profit)}</h3><table style="width:100%;border-collapse:collapse"><tr><th>المنتج</th><th>الكمية</th><th>السعر</th><th>الوقت</th></tr>${lines.map(i=>`<tr><td>${safeText(i.name)}</td><td>${i.qty}</td><td>${money(i.price*i.qty)}</td><td>${i.when.toLocaleTimeString("ar-DZ")}</td></tr>`).join("")}</table></div>`;$("printArea").innerHTML=html;$("printArea").classList.remove("hidden");window.print();$("printArea").classList.add("hidden")}
 $("dailyPdf").onclick=printDaily;
 
-async function openScanner(target){scanTarget=target;$("scannerModal").classList.add("show");$("scanStatus").textContent="جارٍ تشغيل الكاميرا...";if(!("BarcodeDetector" in window)){$("scanStatus").textContent="هذا المتصفح لا يدعم المسح المباشر. أدخل الباركود يدوياً.";return}
- try{cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});$("camera").srcObject=cameraStream;await $("camera").play();const detector=new BarcodeDetector({formats:["qr_code","ean_13","ean_8","code_128","upc_a","upc_e","code_39"]});$("scanStatus").textContent="وجّه الكاميرا نحو الرمز...";
- const scan=async()=>{if(!cameraStream)return;try{const codes=await detector.detect($("camera"));if(codes.length){const value=codes[0].rawValue;stopScanner();$("scannerModal").classList.remove("show");if(scanTarget==="sale"){const p=products.find(x=>x.code===value);if(p)addToCart(p.id);else toast("الرمز غير مسجل في المخزون: "+value)}else{$("pCode").value=value;toast("تم التقاط الرمز. أكمل بيانات المنتج.")}return}}catch(e){}scannerTimer=setTimeout(scan,250)};scan();
- }catch(e){$("scanStatus").textContent="تعذر فتح الكاميرا: "+e.message}}
-function stopScanner(){if(scannerTimer)clearTimeout(scannerTimer);if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}$("camera").srcObject=null}
+async function openScanner(target){
+ scanTarget=target;$("scannerModal").classList.add("show");$("scanStatus").textContent="جارٍ تشغيل الكاميرا...";
+ try{
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("الوصول إلى الكاميرا غير متاح. تحقق من إذن الكاميرا في إعدادات Android.");
+  cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});
+  $("camera").srcObject=cameraStream;await $("camera").play();
+  const handleValue=value=>{if(!value)return;stopScanner();$("scannerModal").classList.remove("show");if(scanTarget==="sale"){const p=products.find(x=>String(x.code).trim()===String(value).trim());if(p)addToCart(p.id);else toast("الرمز غير مسجل في المخزون: "+value)}else{$("pCode").value=value;toast("تم التقاط الرمز. أكمل بيانات المنتج.")}};
+  if("BarcodeDetector" in window){
+   const detector=new BarcodeDetector({formats:["qr_code","ean_13","ean_8","code_128","upc_a","upc_e","code_39"]});$("scanStatus").textContent="وجّه الكاميرا نحو الرمز...";
+   const scan=async()=>{if(!cameraStream)return;try{const codes=await detector.detect($("camera"));if(codes.length){handleValue(codes[0].rawValue);return}}catch(e){}scannerTimer=setTimeout(scan,250)};scan();
+  }else{
+   $("scanStatus").textContent="جارٍ تحميل قارئ الباركود...";
+   if(!window.ZXing){await new Promise((resolve,reject)=>{const script=document.createElement("script");script.src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js";script.onload=resolve;script.onerror=()=>reject(new Error("تعذر تحميل قارئ الباركود. تحقق من اتصال الإنترنت."));document.head.appendChild(script)})}
+   const reader=new ZXing.BrowserMultiFormatReader();window._baqalaZXReader=reader;$("scanStatus").textContent="وجّه الكاميرا نحو الباركود أو QR...";
+   reader.decodeFromVideoElementContinuously($("camera"),(result,err)=>{if(result&&cameraStream){reader.reset();handleValue(result.getText())}});
+  }
+ }catch(e){stopScanner();$("scanStatus").textContent="تعذر تشغيل المسح: "+(e.message||e);}
+}
+function stopScanner(){if(scannerTimer)clearTimeout(scannerTimer);if(window._baqalaZXReader){try{window._baqalaZXReader.reset()}catch(e){}window._baqalaZXReader=null}if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}$("camera").srcObject=null}
 $("openScannerSale").onclick=()=>openScanner("sale");$("scanProductCode").onclick=()=>openScanner("product");$("stopCamera").onclick=stopScanner;
 $("scannerModal").addEventListener("click",e=>{if(e.target===$("scannerModal")){stopScanner();$("scannerModal").classList.remove("show")}});
 window.addEventListener("beforeunload",stopScanner);
