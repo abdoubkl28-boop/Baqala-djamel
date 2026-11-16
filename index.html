@@ -17,7 +17,8 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
 </style>
 </head>
 <body>
-<section id="loginView" class="login">
+<section id="startupView" class="login" style="background:var(--bg)"><div class="login-card" style="text-align:center"><div class="login-emoji">🛒</div><div class="login-brand">بقالة جمال بوقلمون</div><p class="muted">جارٍ فتح التطبيق...</p></div></section>
+<section id="loginView" class="login hidden">
  <div class="login-card">
   <div class="login-emoji">🧑‍🌾</div><div class="login-brand">بقالة جمال بوقلمون</div>
   <p class="muted" style="text-align:center">نظام تسيير المبيعات والمخزون</p>
@@ -31,12 +32,13 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
 <div id="appView" class="hidden">
 <header>
  <div><div class="brand">🛒 بقالة جمال بوقلمون</div><div class="sub">مرحباً، <span id="currentUser">—</span></div></div>
- <div class="top-actions"><button id="quickSale">＋ بيع جديد</button><button id="quickProduct">＋ إضافة منتج</button><button id="logoutBtn">تسجيل الخروج</button></div>
+ <div class="top-actions"><button id="refreshData" class="secondary">↻ تحديث البيانات</button><button id="quickSale">＋ بيع جديد</button><button id="quickProduct">＋ إضافة منتج</button><button id="logoutBtn">تسجيل الخروج</button></div>
 </header>
 <nav class="no-print">
  <button class="active" data-page="dashboard">لوحة التحكم</button>
  <button data-page="sales">عمليات البيع</button>
  <button data-page="inventory">إدارة المخزون</button>
+ <button data-page="debts">إدارة الديون</button>
 </nav>
 <main>
 <section id="dashboard" class="page active">
@@ -99,7 +101,7 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
  <h2 class="section-title">إدارة الديون</h2>
  <div class="card metric"><div class="label">إجمالي الديون المستحقة</div><div class="value" id="totalOutstanding">0 دج</div><div class="muted">مجموع المبالغ المتبقية لدى جميع الزبائن</div></div>
  <div class="card no-print"><h3>استخراج قائمة الديون</h3><p class="muted">حفظ قائمة الديون الحالية بصيغة PDF.</p><div class="actions"><button id="debtsPdf">استخراج قائمة الديون PDF</button></div></div>
- <div class="card"><h3>قائمة ديون الزبائن</h3><div class="table-wrap"><table><thead><tr><th>اسم الزبون</th><th>المشتريات</th><th>المبلغ المدفوع</th><th>المبلغ المتبقي</th><th>إجراءات تسديد الدين</th></tr></thead><tbody id="debtsRows"></tbody></table></div></div>
+ <div class="card"><h3>قائمة ديون الزبائن</h3><p class="muted">تُحدّث القائمة تلقائياً عند تسجيل دين أو تسديده من أي جهاز.</p><div class="table-wrap"><table><thead><tr><th>اسم الزبون</th><th>المشتريات</th><th>المبلغ المدفوع</th><th>المبلغ المتبقي</th><th>إجراءات تسديد الدين</th></tr></thead><tbody id="debtsRows"></tbody></table></div></div>
 </section>
 <div id="printArea" class="hidden"></div>
 </main>
@@ -114,7 +116,7 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, runTransaction, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, runTransaction, enableIndexedDbPersistence, getDocsFromServer } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* ضع بيانات مشروع Firebase الخاص بك هنا من إعدادات Project settings > Your apps */
 const firebaseConfig = {
@@ -143,21 +145,51 @@ function startApp(){
     app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);
     enableIndexedDbPersistence(db).catch(()=>{});
     firebaseReady=true;
-    onAuthStateChanged(auth,u=>{if(u){user=u;enterApp()}else{leaveApp()}});
-  }catch(e){$("loginError").textContent=e.message;$("loginError").classList.remove("hidden")}
+    let firstAuthCheck = true;
+    onAuthStateChanged(auth,u=>{
+      $("startupView").classList.add("hidden");
+      if(firstAuthCheck){
+        firstAuthCheck = false;
+        if(u){signOut(auth);return;}
+        leaveApp();
+        return;
+      }
+      if(u){user=u;enterApp()}else{leaveApp()}
+    });
+  }catch(e){$("startupView").classList.add("hidden");$("loginView").classList.remove("hidden");$("loginError").textContent=e.message;$("loginError").classList.remove("hidden")}
 }
 function enterApp(){
  $("loginView").classList.add("hidden");$("appView").classList.remove("hidden");$("currentUser").textContent=user.email||"مستخدم";
  unsubs.forEach(f=>f());unsubs=[];
  unsubs.push(onSnapshot(collection(db,"products"),snap=>{products=snap.docs.map(d=>({id:d.id,...d.data()}));renderInventory();renderAlerts();renderStockModal();renderSearch()} ,e=>toast("خطأ في قراءة المخزون: "+e.message)));
  unsubs.push(onSnapshot(query(collection(db,"sales"),orderBy("createdAt","desc")),snap=>{sales=snap.docs.map(d=>({id:d.id,...d.data()}));renderDashboard();renderSearch()},e=>toast("خطأ في قراءة المبيعات: "+e.message)));
+ // متابعة الديون لحظياً حتى تظهر عمليات البيع بالدين والتسديد على جميع الأجهزة.
+ unsubs.push(onSnapshot(query(collection(db,"debts"),orderBy("createdAt","desc")),snap=>{debts=snap.docs.map(d=>({id:d.id,...d.data()}));renderDebts()},e=>toast("خطأ في قراءة الديون: "+e.message)));
  showPage("dashboard");
 }
-function leaveApp(){unsubs.forEach(f=>f());unsubs=[];user=null;$("appView").classList.add("hidden");$("loginView").classList.remove("hidden")}
+function leaveApp(){unsubs.forEach(f=>f());unsubs=[];user=null;$("appView").classList.add("hidden");$("startupView").classList.add("hidden");$("loginView").classList.remove("hidden")}
 $("loginBtn").onclick=async()=>{if(!firebaseReady){toast("أكمل إعداد Firebase أولاً.");return}try{$("loginError").classList.add("hidden");await signInWithEmailAndPassword(auth,$("loginEmail").value.trim(),$("loginPassword").value)}catch(e){$("loginError").textContent="تعذر تسجيل الدخول: "+e.message;$("loginError").classList.remove("hidden")}};
 $("logoutBtn").onclick=()=>signOut(auth);
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
 $("quickSale").onclick=()=>showPage("sales");$("quickProduct").onclick=()=>{showPage("inventory");$("pName").focus()};
+async function refreshAllData(){
+ if(!user||!db)return;
+ const btn=$("refreshData");if(btn){btn.disabled=true;btn.textContent="جارٍ التحديث…"}
+ try{
+  const [productSnap,salesSnap,debtsSnap]=await Promise.all([
+   getDocsFromServer(collection(db,"products")),
+   getDocsFromServer(query(collection(db,"sales"),orderBy("createdAt","desc"))),
+   getDocsFromServer(query(collection(db,"debts"),orderBy("createdAt","desc")))
+  ]);
+  products=productSnap.docs.map(d=>({id:d.id,...d.data()}));
+  sales=salesSnap.docs.map(d=>({id:d.id,...d.data()}));
+  debts=debtsSnap.docs.map(d=>({id:d.id,...d.data()}));
+  renderInventory();renderAlerts();renderStockModal();renderSearch();renderDashboard();renderDebts();
+  toast("تم تحديث البيانات من الخادم بنجاح.");
+ }catch(e){toast("تعذر تحديث البيانات. تحقق من الإنترنت: "+e.message)}
+ finally{if(btn){btn.disabled=false;btn.textContent="↻ تحديث البيانات"}}
+}
+$("refreshData").onclick=refreshAllData;
 function periodSales(period){
  const now=new Date();return sales.filter(s=>{const d=s.createdAt?.toDate?s.createdAt.toDate():new Date(s.createdAt||0);if(period==="day")return dateKey(d)===dateKey(now);if(period==="week"){const start=new Date(now);start.setHours(0,0,0,0);start.setDate(start.getDate()-((start.getDay()+6)%7));return d>=start}if(period==="month")return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();return d.getFullYear()===now.getFullYear()});
 }
@@ -252,7 +284,15 @@ $("confirmDebtSale").onclick=async()=>{
  }catch(e){toast("لم يتم تسجيل الدين: "+e.message)}
 };
 function invoiceHtml(s){return `<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">🛒 بقالة جمال بوقلمون</h2><h3 style="text-align:center">فاتورة بيع</h3><p>التاريخ: ${s.date.toLocaleDateString("ar-DZ")} — الوقت: ${s.date.toLocaleTimeString("ar-DZ")}</p><p>المستخدم: ${safeText(s.createdBy||"")}</p><table style="width:100%;border-collapse:collapse"><thead><tr><th style="border:1px solid #ccc;padding:8px">المنتج</th><th style="border:1px solid #ccc;padding:8px">الكمية</th><th style="border:1px solid #ccc;padding:8px">سعر الوحدة</th><th style="border:1px solid #ccc;padding:8px">المجموع</th></tr></thead><tbody>${s.items.map(i=>`<tr><td style="border:1px solid #ccc;padding:8px">${safeText(i.name)}</td><td style="border:1px solid #ccc;padding:8px">${i.qty}</td><td style="border:1px solid #ccc;padding:8px">${money(i.price)}</td><td style="border:1px solid #ccc;padding:8px">${money(i.qty*i.price)}</td></tr>`).join("")}</tbody></table><h3>الإجمالي: ${money(s.total)}</h3></div>`}
-function showInvoice(print=true){if(!lastSale){toast("لا توجد فاتورة لطباعتها.");return}const area=$("printArea");area.innerHTML=invoiceHtml(lastSale);area.classList.remove("hidden");if(print){window.print();}else{area.classList.add("hidden");}}
+function exportPdfHtml(html,fileName){
+ if(window.AndroidPrint&&typeof window.AndroidPrint.printHtml==="function"){
+  try{const encoded=btoa(unescape(encodeURIComponent(html)));window.AndroidPrint.printHtml(encoded,fileName||"Baqala-Djamel");toast("تم تجهيز المستند. اختر «حفظ بصيغة PDF» من نافذة الطباعة.");return}
+  catch(e){toast("تعذر تجهيز PDF: "+e.message);return}
+ }
+ const area=$("printArea"),oldTitle=document.title;area.innerHTML=html;area.classList.remove("hidden");document.title=fileName||"بقالة جمال";
+ window.print();area.classList.add("hidden");document.title=oldTitle;
+}
+function showInvoice(print=true){if(!lastSale){toast("لا توجد فاتورة لطباعتها.");return}const html=invoiceHtml(lastSale);if(print)exportPdfHtml(html,"فاتورة-بقالة-جمال");else{$("printArea").innerHTML=html;$("printArea").classList.add("hidden")}}
 $("invoicePdf").onclick=()=>showInvoice(true);
 function debtDate(d){const v=d?.toDate?d.toDate():new Date(d||0);return isNaN(v)? "—":v.toLocaleString("ar-DZ")}
 function customerDebts(){
@@ -291,38 +331,28 @@ async function payCustomerDebt(group){
  }catch(e){toast("تعذر تسجيل التسديد: "+e.message)}
 }
 function printDebtPayment(r){
- $("printArea").innerHTML=`<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">بقالة جمال بوقلمون</h2><h3 style="text-align:center">وصل تسديد دين</h3><p>الزبون: ${safeText(r.customer)}</p><p>التاريخ: ${r.date.toLocaleString("ar-DZ")}</p><h3>المبلغ المدفوع: ${money(r.amount)}</h3><p>عدد الديون التي شملها التسديد: ${r.allocations.length}</p><p>شكراً لكم</p></div>`;
- $("printArea").classList.remove("hidden");window.print();$("printArea").classList.add("hidden");
+ const html=`<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">بقالة جمال بوقلمون</h2><h3 style="text-align:center">وصل تسديد دين</h3><p>الزبون: ${safeText(r.customer)}</p><p>التاريخ: ${r.date.toLocaleString("ar-DZ")}</p><h3>المبلغ المدفوع: ${money(r.amount)}</h3><p>عدد الديون التي شملها التسديد: ${r.allocations.length}</p><p>شكراً لكم</p></div>`;
+ exportPdfHtml(html,"وصل-تسديد-دين");
 }
 function printDebts(){
  const groups=customerDebts(),total=groups.reduce((n,g)=>n+g.remaining,0);
  const rows=groups.map(g=>`<tr><td>${safeText(g.customer)}</td><td>${money(g.total)}</td><td>${money(g.paid)}</td><td>${money(g.remaining)}</td></tr>`).join("");
- $("printArea").innerHTML=`<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">بقالة جمال بوقلمون</h2><h3>قائمة الديون المستحقة</h3><p>التاريخ: ${new Date().toLocaleString("ar-DZ")}</p><h3>إجمالي الديون المتبقية: ${money(total)}</h3><table style="width:100%;border-collapse:collapse"><thead><tr><th>الزبون</th><th>إجمالي الدين</th><th>المدفوع</th><th>المتبقي</th></tr></thead><tbody>${rows||'<tr><td colspan="4">لا توجد ديون</td></tr>'}</tbody></table></div>`;
- $("printArea").classList.remove("hidden");window.print();$("printArea").classList.add("hidden");
+ const html=`<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">بقالة جمال بوقلمون</h2><h3>قائمة الديون المستحقة</h3><p>التاريخ: ${new Date().toLocaleString("ar-DZ")}</p><h3>إجمالي الديون المتبقية: ${money(total)}</h3><table style="width:100%;border-collapse:collapse"><thead><tr><th>الزبون</th><th>إجمالي الدين</th><th>المدفوع</th><th>المتبقي</th></tr></thead><tbody>${rows||'<tr><td colspan="4">لا توجد ديون</td></tr>'}</tbody></table></div>`;
+ exportPdfHtml(html,"قائمة-ديون-الزبائن");
 }
 $("debtsPdf").onclick=printDebts;
-function printDaily(){const list=periodSales("day"),t=totals(list),lines=list.flatMap(s=>(s.items||[]).map(i=>({ ...i,when:s.createdAt?.toDate?s.createdAt.toDate():new Date()})));const html=`<div dir="rtl" style="font-family:Tahoma;padding:20px"><h2>بقالة جمال بوقلمون — تقرير المبيعات اليومي</h2><p>التاريخ: ${new Date().toLocaleDateString("ar-DZ")}</p><h3>إجمالي المبيعات: ${money(t.sales)} | الفائدة: ${money(t.profit)}</h3><table style="width:100%;border-collapse:collapse"><tr><th>المنتج</th><th>الكمية</th><th>السعر</th><th>الوقت</th></tr>${lines.map(i=>`<tr><td>${safeText(i.name)}</td><td>${i.qty}</td><td>${money(i.price*i.qty)}</td><td>${i.when.toLocaleTimeString("ar-DZ")}</td></tr>`).join("")}</table></div>`;$("printArea").innerHTML=html;$("printArea").classList.remove("hidden");window.print();$("printArea").classList.add("hidden")}
+function printDaily(){
+ const list=periodSales("day"),t=totals(list),lines=list.flatMap(s=>(s.items||[]).map(i=>({...i,when:s.createdAt?.toDate?s.createdAt.toDate():new Date()})));
+ const html=`<div dir="rtl" style="font-family:Tahoma;padding:20px"><h2>بقالة جمال بوقلمون — تقرير المبيعات اليومي</h2><p>التاريخ: ${new Date().toLocaleDateString("ar-DZ")}</p><h3>إجمالي المبيعات: ${money(t.sales)} | الفائدة: ${money(t.profit)}</h3><table style="width:100%;border-collapse:collapse"><tr><th>المنتج</th><th>الكمية</th><th>السعر</th><th>الوقت</th></tr>${lines.map(i=>`<tr><td>${safeText(i.name)}</td><td>${i.qty}</td><td>${money(i.price*i.qty)}</td><td>${i.when.toLocaleTimeString("ar-DZ")}</td></tr>`).join("")}</table></div>`;
+ exportPdfHtml(html,"تقرير-المبيعات-اليومي");
+}
 $("dailyPdf").onclick=printDaily;
 
-async function openScanner(target){
- scanTarget=target;$("scannerModal").classList.add("show");$("scanStatus").textContent="جارٍ تشغيل الكاميرا...";
- try{
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("الوصول إلى الكاميرا غير متاح. تحقق من إذن الكاميرا في إعدادات Android.");
-  cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});
-  $("camera").srcObject=cameraStream;await $("camera").play();
-  const handleValue=value=>{if(!value)return;stopScanner();$("scannerModal").classList.remove("show");if(scanTarget==="sale"){const p=products.find(x=>String(x.code).trim()===String(value).trim());if(p)addToCart(p.id);else toast("الرمز غير مسجل في المخزون: "+value)}else{$("pCode").value=value;toast("تم التقاط الرمز. أكمل بيانات المنتج.")}};
-  if("BarcodeDetector" in window){
-   const detector=new BarcodeDetector({formats:["qr_code","ean_13","ean_8","code_128","upc_a","upc_e","code_39"]});$("scanStatus").textContent="وجّه الكاميرا نحو الرمز...";
-   const scan=async()=>{if(!cameraStream)return;try{const codes=await detector.detect($("camera"));if(codes.length){handleValue(codes[0].rawValue);return}}catch(e){}scannerTimer=setTimeout(scan,250)};scan();
-  }else{
-   $("scanStatus").textContent="جارٍ تحميل قارئ الباركود...";
-   if(!window.ZXing){await new Promise((resolve,reject)=>{const script=document.createElement("script");script.src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js";script.onload=resolve;script.onerror=()=>reject(new Error("تعذر تحميل قارئ الباركود. تحقق من اتصال الإنترنت."));document.head.appendChild(script)})}
-   const reader=new ZXing.BrowserMultiFormatReader();window._baqalaZXReader=reader;$("scanStatus").textContent="وجّه الكاميرا نحو الباركود أو QR...";
-   reader.decodeFromVideoElementContinuously($("camera"),(result,err)=>{if(result&&cameraStream){reader.reset();handleValue(result.getText())}});
-  }
- }catch(e){stopScanner();$("scanStatus").textContent="تعذر تشغيل المسح: "+(e.message||e);}
-}
-function stopScanner(){if(scannerTimer)clearTimeout(scannerTimer);if(window._baqalaZXReader){try{window._baqalaZXReader.reset()}catch(e){}window._baqalaZXReader=null}if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}$("camera").srcObject=null}
+async function openScanner(target){scanTarget=target;$("scannerModal").classList.add("show");$("scanStatus").textContent="جارٍ تشغيل الكاميرا...";if(!("BarcodeDetector" in window)){$("scanStatus").textContent="هذا المتصفح لا يدعم المسح المباشر. أدخل الباركود يدوياً.";return}
+ try{cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});$("camera").srcObject=cameraStream;await $("camera").play();const detector=new BarcodeDetector({formats:["qr_code","ean_13","ean_8","code_128","upc_a","upc_e","code_39"]});$("scanStatus").textContent="وجّه الكاميرا نحو الرمز...";
+ const scan=async()=>{if(!cameraStream)return;try{const codes=await detector.detect($("camera"));if(codes.length){const value=codes[0].rawValue;stopScanner();$("scannerModal").classList.remove("show");if(scanTarget==="sale"){const p=products.find(x=>x.code===value);if(p)addToCart(p.id);else toast("الرمز غير مسجل في المخزون: "+value)}else{$("pCode").value=value;toast("تم التقاط الرمز. أكمل بيانات المنتج.")}return}}catch(e){}scannerTimer=setTimeout(scan,250)};scan();
+ }catch(e){$("scanStatus").textContent="تعذر فتح الكاميرا: "+e.message}}
+function stopScanner(){if(scannerTimer)clearTimeout(scannerTimer);if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}$("camera").srcObject=null}
 $("openScannerSale").onclick=()=>openScanner("sale");$("scanProductCode").onclick=()=>openScanner("product");$("stopCamera").onclick=stopScanner;
 $("scannerModal").addEventListener("click",e=>{if(e.target===$("scannerModal")){stopScanner();$("scannerModal").classList.remove("show")}});
 window.addEventListener("beforeunload",stopScanner);
