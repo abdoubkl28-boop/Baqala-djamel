@@ -2,14 +2,14 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#14532d">
 <title>بقالة جمال بوقلمون</title>
 <style>
 :root{--green:#14532d;--green2:#166534;--bg:#f4f7f5;--card:#fff;--text:#17211b;--muted:#64748b;--line:#e2e8f0;--yellow:#fef3c7;--red:#fee2e2;--shadow:0 5px 22px #0f172a0b}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Tahoma,Arial,sans-serif;color:var(--text)}button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:11px 15px;background:var(--green);color:white;font-weight:700}button:hover{filter:brightness(1.08)}button.secondary{background:#e8f0eb;color:var(--green)}button.danger{background:#b91c1c}button.warning{background:#d97706}button:disabled{opacity:.5;cursor:not-allowed}
+*{box-sizing:border-box}html,body{width:100%;max-width:100%;min-height:100%;margin:0;overflow-x:hidden}body{background:var(--bg);font-family:Tahoma,Arial,sans-serif;color:var(--text)}#appView{width:100%;max-width:100%;min-height:100vh;min-height:100dvh;overflow-x:hidden}header,nav,main{width:100%;max-width:100%;min-width:0}main{overflow-x:hidden}.page,.card,.grid,.two{min-width:0}button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:11px 15px;background:var(--green);color:white;font-weight:700}button:hover{filter:brightness(1.08)}button.secondary{background:#e8f0eb;color:var(--green)}button.danger{background:#b91c1c}button.warning{background:#d97706}button:disabled{opacity:.5;cursor:not-allowed}
 header{background:linear-gradient(120deg,#14532d,#166534);color:white;padding:16px 4%;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;box-shadow:var(--shadow)}.brand{font-size:22px;font-weight:800}.sub{font-size:13px;opacity:.85;margin-top:5px}.userbox{display:flex;align-items:center;gap:10px}.top-actions{display:flex;gap:8px;flex-wrap:wrap}.top-actions button{background:#ffffff20;border:1px solid #ffffff55}
-nav{display:flex;gap:8px;overflow-x:auto;padding:12px 4%;background:white;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;scrollbar-width:thin}nav button{white-space:nowrap;background:#edf4ef;color:var(--green);border-radius:9px}nav button.active{background:var(--green);color:white}
+nav{display:flex;gap:8px;max-width:100%;min-width:0;overflow-x:auto;padding:12px 4%;background:white;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;scrollbar-width:thin}nav button{white-space:nowrap;background:#edf4ef;color:var(--green);border-radius:9px}nav button.active{background:var(--green);color:white}
 main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.active{display:block}.section-title{font-size:21px;margin:5px 0 18px}.muted{color:var(--muted);font-size:13px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:17px;box-shadow:var(--shadow);margin-bottom:15px}.metric .label{color:var(--muted);font-size:14px}.metric .value{font-size:26px;font-weight:800;margin:10px 0 5px;color:var(--green);direction:ltr;text-align:right}.metric .profit{font-size:14px;color:#15803d;font-weight:700}.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:600px}th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:right;font-size:14px}th{background:#f8fafc;color:#475569;font-weight:700}tr:last-child td{border-bottom:0}.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:700}.low{background:var(--yellow);color:#92400e}.out{background:var(--red);color:#b91c1c}.ok{background:#dcfce7;color:#166534}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:13px;color:#475569;font-weight:700}.field input,.field select,.search{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:9px;background:white;outline:none}.field input:focus,.field select:focus,.search:focus{border-color:var(--green);box-shadow:0 0 0 3px #16653418}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.product-results{position:relative;max-height:190px;overflow:auto;border:1px solid var(--line);border-radius:9px;background:white}.result{padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer}.result:hover{background:#f0fdf4}.inline{display:flex;gap:8px;align-items:center}.inline>*{flex:1}.qty{width:75px;padding:7px;border:1px solid var(--line);border-radius:7px}.total{font-size:23px;font-weight:800;color:var(--green)}.empty{text-align:center;padding:25px;color:var(--muted)}.login{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#e8f5ec,#f8fafc)}.login-card{width:min(430px,100%);background:white;border-radius:20px;padding:28px;box-shadow:0 15px 50px #0f172a18}.login-brand{text-align:center;font-size:25px;font-weight:900;color:var(--green);margin-bottom:8px}.login-emoji{text-align:center;font-size:42px;margin:5px}.login-card .field{margin:15px 0}.login-card button{width:100%;margin-top:8px}.notice{padding:12px;border-radius:10px;background:#eff6ff;color:#1e40af;font-size:13px;line-height:1.7;margin:12px 0}.hidden{display:none!important}.modal{position:fixed;inset:0;background:#0f172a88;z-index:20;display:none;align-items:center;justify-content:center;padding:15px}.modal.show{display:flex}.modal-box{background:white;width:min(900px,100%);max-height:90vh;overflow:auto;border-radius:16px;padding:20px}.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:15px}.modal-head h3{margin:0}.toast{position:fixed;bottom:20px;left:20px;z-index:50;background:#17211b;color:white;padding:12px 18px;border-radius:10px;box-shadow:var(--shadow);display:none;max-width:90%}.toast.show{display:block}.camera{width:100%;max-height:300px;background:#111;border-radius:12px}.scanner-note{font-size:13px;color:var(--muted);line-height:1.7}.small{font-size:12px}.bar{height:1px;background:var(--line);margin:15px 0}
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}}
 @media(max-width:560px){header{padding:14px 4%}.brand{font-size:18px}.top-actions button{padding:9px;font-size:12px}main{padding-top:15px}.grid{gap:9px}.card{padding:13px}.metric .value{font-size:21px}.form-grid{grid-template-columns:1fr}.section-title{font-size:19px}}
@@ -68,7 +68,7 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
   <h3>سلة المشتريات</h3>
   <div class="table-wrap"><table><thead><tr><th>اسم المنتج</th><th>الكمية</th><th>سعر الوحدة</th><th>المجموع</th><th class="no-print">حذف</th></tr></thead><tbody id="cartRows"></tbody></table></div>
   <div class="bar"></div><div class="inline"><strong>الإجمالي:</strong><div class="total" id="cartTotal">0 دج</div></div>
-  <div class="actions no-print"><button class="danger" id="clearCart">إفراغ السلة</button><button id="confirmSale">تأكيد البيع وخصم المخزون</button><button class="secondary" id="invoicePdf">طباعة الفاتورة PDF</button></div>
+  <div class="actions no-print"><button class="danger" id="clearCart">إفراغ السلة</button><button id="confirmSale">تأكيد البيع وخصم المخزون</button><button id="confirmDebtSale" class="warning">تسجيل البيع بالدين</button><button class="secondary" id="invoicePdf">طباعة الفاتورة PDF</button></div>
  </div>
 </section>
 <section id="inventory" class="page">
@@ -95,6 +95,12 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
   <div class="table-wrap"><table><thead><tr><th>اسم المنتج</th><th>المخزون المتاح</th><th>شراء الوحدة</th><th>بيع الوحدة</th><th>الحالة</th><th>تعديل</th></tr></thead><tbody id="inventoryRows"></tbody></table></div>
  </div>
 </section>
+<section id="debts" class="page">
+ <h2 class="section-title">إدارة الديون</h2>
+ <div class="card metric"><div class="label">إجمالي الديون المستحقة</div><div class="value" id="totalOutstanding">0 دج</div><div class="muted">مجموع المبالغ المتبقية لدى جميع الزبائن</div></div>
+ <div class="card no-print"><h3>استخراج قائمة الديون</h3><p class="muted">حفظ قائمة الديون الحالية بصيغة PDF.</p><div class="actions"><button id="debtsPdf">استخراج قائمة الديون PDF</button></div></div>
+ <div class="card"><h3>قائمة ديون الزبائن</h3><div class="table-wrap"><table><thead><tr><th>اسم الزبون</th><th>المشتريات</th><th>المبلغ المدفوع</th><th>المبلغ المتبقي</th><th>إجراءات تسديد الدين</th></tr></thead><tbody id="debtsRows"></tbody></table></div></div>
+</section>
 <div id="printArea" class="hidden"></div>
 </main>
 </div>
@@ -103,6 +109,7 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
  <div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>المنتج</th><th>النمط</th><th>المتاح</th><th>سعر الشراء</th><th>سعر البيع</th><th>الحالة</th><th>تعديل</th></tr></thead><tbody id="modalStockRows"></tbody></table></div>
 </div></div>
 <div class="modal" id="scannerModal"><div class="modal-box"><div class="modal-head"><h3>مسح الباركود أو QR</h3><button class="danger" data-close="scannerModal">إغلاق</button></div><video id="camera" class="camera" playsinline></video><p id="scanStatus" class="scanner-note">وجّه الكاميرا نحو الباركود أو رمز QR.</p><div class="actions"><button id="stopCamera" class="secondary">إيقاف الكاميرا</button></div><p class="scanner-note">يتطلب المسح متصفحاً يدعم BarcodeDetector واتصالاً آمناً HTTPS أو localhost. إذا لم يدعم جهازك ذلك، أدخل الرمز يدوياً في خانة الباركود.</p></div></div>
+<div class="modal" id="debtPurchasesModal"><div class="modal-box"><div class="modal-head"><h3 id="debtPurchasesTitle">مشتريات الزبون</h3><button class="danger" data-close="debtPurchasesModal">إغلاق</button></div><div id="debtPurchasesContent"></div></div></div>
 <div id="toast" class="toast"></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
@@ -122,11 +129,11 @@ const firebaseConfig = {
 const $ = id => document.getElementById(id);
 const money = n => (Number(n)||0).toLocaleString("fr-FR",{maximumFractionDigits:2})+" دج";
 const dateKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-let app,auth,db,user=null,products=[],sales=[],cart=[],lastSale=null,unsubs=[];
+let app,auth,db,user=null,products=[],sales=[],debts=[],cart=[],lastSale=null,unsubs=[];
 let firebaseReady=false, cameraStream=null, scanTarget="sale", scannerTimer=null;
 
 function toast(msg){$("toast").textContent=msg;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200)}
-function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));if(id==="inventory")renderInventory()}
+function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));if(id==="inventory")renderInventory();if(id==="debts")renderDebts()}
 function safeText(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function statusOf(q){return q<=0?"out":q<=5?"low":"available"}
 function statusHtml(q){let s=statusOf(q);return s==="out"?'<span class="status out">نافذ</span>':s==="low"?'<span class="status low">منخفض</span>':'<span class="status ok">متوفر</span>'}
@@ -226,9 +233,74 @@ $("confirmSale").onclick=async()=>{
   lastSale={items,total,profit,date:new Date(),createdBy:user.email};cart=[];renderCart();toast("تم تأكيد البيع وخصم المخزون بنجاح.");showInvoice(false);
  }catch(e){toast("لم تتم عملية البيع: "+e.message)}
 };
+$("confirmDebtSale").onclick=async()=>{
+ if(!cart.length){toast("السلة فارغة.");return}
+ const customer=prompt("أدخل اسم الزبون المدين:");
+ if(!customer||!customer.trim()){toast("يجب إدخال اسم الزبون لتسجيل الدين.");return}
+ const items=cart.map(i=>({...i})),total=items.reduce((a,i)=>a+i.qty*i.price,0),profit=items.reduce((a,i)=>a+i.qty*(i.price-i.cost),0);
+ try{
+  await runTransaction(db,async tx=>{
+   const refs=items.map(i=>doc(db,"products",i.id)),snaps=[];
+   for(const ref of refs)snaps.push(await tx.get(ref));
+   snaps.forEach((snap,index)=>{if(!snap.exists())throw new Error("أحد المنتجات لم يعد موجوداً.");const available=Number(snap.data().stock)||0;if(available<items[index].qty)throw new Error("المخزون غير كافٍ للمنتج: "+items[index].name)});
+   snaps.forEach((snap,index)=>tx.update(refs[index],{stock:(Number(snap.data().stock)||0)-items[index].qty,updatedAt:serverTimestamp()}));
+   const saleRef=doc(collection(db,"sales")),debtRef=doc(collection(db,"debts"));
+   tx.set(saleRef,{items,total,profit,customer:customer.trim(),paymentType:"debt",createdAt:serverTimestamp(),createdBy:user.email||user.uid});
+   tx.set(debtRef,{customer:customer.trim(),saleId:saleRef.id,items,total,paid:0,remaining:total,payments:[],createdAt:serverTimestamp(),createdBy:user.email||user.uid});
+  });
+  cart=[];renderCart();toast("تم تسجيل البيع بالدين وتحديث المخزون.");showPage("debts");
+ }catch(e){toast("لم يتم تسجيل الدين: "+e.message)}
+};
 function invoiceHtml(s){return `<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">🛒 بقالة جمال بوقلمون</h2><h3 style="text-align:center">فاتورة بيع</h3><p>التاريخ: ${s.date.toLocaleDateString("ar-DZ")} — الوقت: ${s.date.toLocaleTimeString("ar-DZ")}</p><p>المستخدم: ${safeText(s.createdBy||"")}</p><table style="width:100%;border-collapse:collapse"><thead><tr><th style="border:1px solid #ccc;padding:8px">المنتج</th><th style="border:1px solid #ccc;padding:8px">الكمية</th><th style="border:1px solid #ccc;padding:8px">سعر الوحدة</th><th style="border:1px solid #ccc;padding:8px">المجموع</th></tr></thead><tbody>${s.items.map(i=>`<tr><td style="border:1px solid #ccc;padding:8px">${safeText(i.name)}</td><td style="border:1px solid #ccc;padding:8px">${i.qty}</td><td style="border:1px solid #ccc;padding:8px">${money(i.price)}</td><td style="border:1px solid #ccc;padding:8px">${money(i.qty*i.price)}</td></tr>`).join("")}</tbody></table><h3>الإجمالي: ${money(s.total)}</h3></div>`}
 function showInvoice(print=true){if(!lastSale){toast("لا توجد فاتورة لطباعتها.");return}const area=$("printArea");area.innerHTML=invoiceHtml(lastSale);area.classList.remove("hidden");if(print){window.print();}else{area.classList.add("hidden");}}
 $("invoicePdf").onclick=()=>showInvoice(true);
+function debtDate(d){const v=d?.toDate?d.toDate():new Date(d||0);return isNaN(v)? "—":v.toLocaleString("ar-DZ")}
+function customerDebts(){
+ const groups={};
+ debts.forEach(d=>{const key=(d.customer||"زبون غير معروف").trim();if(!groups[key])groups[key]={customer:key,records:[],total:0,paid:0,remaining:0};const g=groups[key];g.records.push(d);g.total+=Number(d.total)||0;g.paid+=Number(d.paid)||0;g.remaining+=Number(d.remaining)||0});
+ return Object.values(groups).sort((a,b)=>b.remaining-a.remaining);
+}
+function renderDebts(){
+ const groups=customerDebts(),outstanding=groups.reduce((n,g)=>n+g.remaining,0);
+ $("totalOutstanding").textContent=money(outstanding);
+ $("debtsRows").innerHTML=groups.length?groups.map((g,i)=>`<tr><td>${safeText(g.customer)}</td><td><button class="secondary" data-purchases="${i}">قائمة المشتريات</button></td><td>${money(g.paid)}</td><td><strong>${money(g.remaining)}</strong></td><td>${g.remaining<=0?'<span class="status ok">خالص</span>':`<button data-pay="${i}">إجراءات تسديد الدين</button>`}</td></tr>`).join(""):'<tr><td colspan="5" class="empty">لا توجد ديون مسجلة</td></tr>';
+ $("debtsRows").querySelectorAll("[data-purchases]").forEach(b=>b.onclick=()=>showDebtPurchases(groups[Number(b.dataset.purchases)]));
+ $("debtsRows").querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>payCustomerDebt(groups[Number(b.dataset.pay)]));
+}
+function showDebtPurchases(group){
+ $("debtPurchasesTitle").textContent="مشتريات الزبون: "+group.customer;
+ $("debtPurchasesContent").innerHTML=group.records.map(d=>`<div class="bar"></div><p><strong>تاريخ الشراء:</strong> ${debtDate(d.createdAt)} — <strong>الإجمالي:</strong> ${money(d.total)}</p><div class="table-wrap"><table><thead><tr><th>المنتج</th><th>الكمية</th><th>سعر الوحدة</th><th>المجموع</th></tr></thead><tbody>${(d.items||[]).map(i=>`<tr><td>${safeText(i.name)}</td><td>${Number(i.qty)||0}</td><td>${money(i.price)}</td><td>${money((Number(i.qty)||0)*(Number(i.price)||0))}</td></tr>`).join("")}</tbody></table></div>`).join("");
+ $("debtPurchasesModal").classList.add("show");
+}
+async function payCustomerDebt(group){
+ const amount=Number(prompt("المبلغ المدفوع من طرف "+group.customer+" (دج):"));
+ if(!Number.isFinite(amount)||amount<=0){toast("أدخل مبلغاً صحيحاً.");return}
+ if(amount>group.remaining){toast("المبلغ أكبر من الدين المتبقي: "+money(group.remaining));return}
+ let left=amount;const allocations=[];
+ try{
+  const ordered=[...group.records].filter(d=>Number(d.remaining)>0).sort((a,b)=>{const da=a.createdAt?.toDate?a.createdAt.toDate():new Date(a.createdAt||0),dbb=b.createdAt?.toDate?b.createdAt.toDate():new Date(b.createdAt||0);return da-dbb});
+  for(const d of ordered){if(left<=0)break;const due=Number(d.remaining)||0,part=Math.min(due,left);allocations.push({id:d.id,part,due,paid:Number(d.paid)||0});left-=part}
+  await runTransaction(db,async tx=>{
+   const refs=allocations.map(a=>doc(db,"debts",a.id)),snaps=[];
+   for(const ref of refs)snaps.push(await tx.get(ref));
+   snaps.forEach((snap,i)=>{if(!snap.exists()||Number(snap.data().remaining)!==allocations[i].due)throw new Error("تغير رصيد الدين؛ أعد المحاولة.")});
+   snaps.forEach((snap,i)=>{const a=allocations[i],d=snap.data(),payment={amount:a.part,date:new Date().toISOString(),createdBy:user.email||user.uid};tx.update(refs[i],{paid:(Number(d.paid)||0)+a.part,remaining:Math.max(0,(Number(d.remaining)||0)-a.part),payments:[...(d.payments||[]),payment],updatedAt:serverTimestamp()})});
+  });
+  const receipt={customer:group.customer,amount,date:new Date(),allocations:allocations.map(a=>({amount:a.part}))};printDebtPayment(receipt);
+  toast("تم تسجيل التسديد بنجاح.");
+ }catch(e){toast("تعذر تسجيل التسديد: "+e.message)}
+}
+function printDebtPayment(r){
+ $("printArea").innerHTML=`<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">بقالة جمال بوقلمون</h2><h3 style="text-align:center">وصل تسديد دين</h3><p>الزبون: ${safeText(r.customer)}</p><p>التاريخ: ${r.date.toLocaleString("ar-DZ")}</p><h3>المبلغ المدفوع: ${money(r.amount)}</h3><p>عدد الديون التي شملها التسديد: ${r.allocations.length}</p><p>شكراً لكم</p></div>`;
+ $("printArea").classList.remove("hidden");window.print();$("printArea").classList.add("hidden");
+}
+function printDebts(){
+ const groups=customerDebts(),total=groups.reduce((n,g)=>n+g.remaining,0);
+ const rows=groups.map(g=>`<tr><td>${safeText(g.customer)}</td><td>${money(g.total)}</td><td>${money(g.paid)}</td><td>${money(g.remaining)}</td></tr>`).join("");
+ $("printArea").innerHTML=`<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">بقالة جمال بوقلمون</h2><h3>قائمة الديون المستحقة</h3><p>التاريخ: ${new Date().toLocaleString("ar-DZ")}</p><h3>إجمالي الديون المتبقية: ${money(total)}</h3><table style="width:100%;border-collapse:collapse"><thead><tr><th>الزبون</th><th>إجمالي الدين</th><th>المدفوع</th><th>المتبقي</th></tr></thead><tbody>${rows||'<tr><td colspan="4">لا توجد ديون</td></tr>'}</tbody></table></div>`;
+ $("printArea").classList.remove("hidden");window.print();$("printArea").classList.add("hidden");
+}
+$("debtsPdf").onclick=printDebts;
 function printDaily(){const list=periodSales("day"),t=totals(list),lines=list.flatMap(s=>(s.items||[]).map(i=>({ ...i,when:s.createdAt?.toDate?s.createdAt.toDate():new Date()})));const html=`<div dir="rtl" style="font-family:Tahoma;padding:20px"><h2>بقالة جمال بوقلمون — تقرير المبيعات اليومي</h2><p>التاريخ: ${new Date().toLocaleDateString("ar-DZ")}</p><h3>إجمالي المبيعات: ${money(t.sales)} | الفائدة: ${money(t.profit)}</h3><table style="width:100%;border-collapse:collapse"><tr><th>المنتج</th><th>الكمية</th><th>السعر</th><th>الوقت</th></tr>${lines.map(i=>`<tr><td>${safeText(i.name)}</td><td>${i.qty}</td><td>${money(i.price*i.qty)}</td><td>${i.when.toLocaleTimeString("ar-DZ")}</td></tr>`).join("")}</table></div>`;$("printArea").innerHTML=html;$("printArea").classList.remove("hidden");window.print();$("printArea").classList.add("hidden")}
 $("dailyPdf").onclick=printDaily;
 
