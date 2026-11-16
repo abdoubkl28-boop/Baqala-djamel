@@ -149,7 +149,7 @@ jobs:
 
           class MainActivity : Activity() {
               private lateinit var webView: WebView
-              private val appUrl = "https://abdoubkl28-boop.github.io/baqala-djamel/"
+              private val appUrl = "https://abdoubkl28-boop.github.io/Baqala-djamel/"
               private val appHost = "abdoubkl28-boop.github.io"
 
               @SuppressLint("SetJavaScriptEnabled")
