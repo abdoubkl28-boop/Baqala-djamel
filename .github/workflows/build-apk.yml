@@ -101,6 +101,8 @@ jobs:
           cat > app/src/main/AndroidManifest.xml <<'EOF'
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <uses-permission android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.CAMERA" />
+              <uses-feature android:name="android.hardware.camera" android:required="false" />
               <application
                   android:allowBackup="true"
                   android:label="بقالة جمال"
@@ -139,6 +141,8 @@ jobs:
           import android.annotation.SuppressLint
           import android.app.Activity
           import android.content.Intent
+          import android.content.pm.PackageManager
+          import android.webkit.PermissionRequest
           import android.graphics.Color
           import android.net.Uri
           import android.os.Bundle
@@ -177,7 +181,21 @@ jobs:
                       mediaPlaybackRequiresUserGesture = true
                   }
 
-                  webView.webChromeClient = WebChromeClient()
+                  webView.webChromeClient = object : WebChromeClient() {
+                      override fun onPermissionRequest(request: PermissionRequest) {
+                          runOnUiThread {
+                              val wantsVideo = request.resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE)
+                              if (wantsVideo && checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                                  request.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
+                              } else {
+                                  request.deny()
+                              }
+                          }
+                      }
+                  }
+                  if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                      requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 501)
+                  }
                   webView.webViewClient = object : WebViewClient() {
                       override fun shouldOverrideUrlLoading(
                           view: WebView?,
