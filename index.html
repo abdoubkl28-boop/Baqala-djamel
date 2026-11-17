@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#14532d">
+<meta name="application-name" content="GESTO">
+<meta name="apple-mobile-web-app-title" content="GESTO">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314532d'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-size='39'%3E%F0%9F%9B%92%3C/text%3E%3C/svg%3E">
 <title>GESTO</title>
 <style>
 :root{--green:#14532d;--green2:#166534;--bg:#f4f7f5;--card:#fff;--text:#17211b;--muted:#64748b;--line:#e2e8f0;--yellow:#fef3c7;--red:#fee2e2;--shadow:0 5px 22px #0f172a0b}
@@ -20,7 +23,7 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
 <section id="startupView" class="login" style="background:var(--bg)"><div class="login-card" style="text-align:center"><div class="login-emoji">🛒</div><div class="login-brand">GESTO</div><p class="muted">جارٍ فتح التطبيق...</p></div></section>
 <section id="loginView" class="login hidden">
  <div class="login-card">
-  <div class="login-emoji">🧑‍🌾</div><div class="login-brand">GESTO</div>
+  <div class="login-emoji">🛒</div><div class="login-brand">GESTO</div>
   <p class="muted" style="text-align:center">نظام تسيير المبيعات والمخزون</p>
   <div class="field"><label>البريد الإلكتروني / اسم المستخدم</label><input id="loginEmail" type="text" inputmode="email" dir="ltr" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="أدخل البريد الإلكتروني"></div>
   <div class="field"><label>كلمة المرور</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="أدخل كلمة المرور"></div>
@@ -371,13 +374,13 @@ $("confirmDebtSale").onclick=async()=>{
 function invoiceHtml(s){return `<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">🛒 GESTO</h2><h3 style="text-align:center">فاتورة بيع</h3><p>التاريخ: ${s.date.toLocaleDateString("ar-DZ")} — الوقت: ${s.date.toLocaleTimeString("ar-DZ")}</p><p>المستخدم: ${safeText(s.createdBy||"")}</p><table style="width:100%;border-collapse:collapse"><thead><tr><th style="border:1px solid #ccc;padding:8px">المنتج</th><th style="border:1px solid #ccc;padding:8px">الكمية</th><th style="border:1px solid #ccc;padding:8px">سعر الوحدة</th><th style="border:1px solid #ccc;padding:8px">المجموع</th></tr></thead><tbody>${s.items.map(i=>`<tr><td style="border:1px solid #ccc;padding:8px">${safeText(i.name)}</td><td style="border:1px solid #ccc;padding:8px">${i.qty}</td><td style="border:1px solid #ccc;padding:8px">${money(i.price)}</td><td style="border:1px solid #ccc;padding:8px">${money(i.qty*i.price)}</td></tr>`).join("")}</tbody></table><h3>الإجمالي: ${money(s.total)}</h3></div>`}
 function exportPdfHtml(html,fileName){
  if(window.AndroidPrint&&typeof window.AndroidPrint.printHtml==="function"){
-  try{const encoded=btoa(unescape(encodeURIComponent(html)));window.AndroidPrint.printHtml(encoded,fileName||"Baqala-Djamel");toast("تم تجهيز المستند. اختر «حفظ بصيغة PDF» من نافذة الطباعة.");return}
+  try{const encoded=btoa(unescape(encodeURIComponent(html)));window.AndroidPrint.printHtml(encoded,fileName||"GESTO");toast("تم تجهيز المستند. اختر «حفظ بصيغة PDF» من نافذة الطباعة.");return}
   catch(e){toast("تعذر تجهيز PDF: "+e.message);return}
  }
  const area=$("printArea"),oldTitle=document.title;area.innerHTML=html;area.classList.remove("hidden");document.title=fileName||"GESTO";
  window.print();area.classList.add("hidden");document.title=oldTitle;
 }
-function showInvoice(print=true){if(!lastSale){toast("لا توجد فاتورة لطباعتها.");return}const html=invoiceHtml(lastSale);if(print)exportPdfHtml(html,"فاتورة-بقالة-جمال");else{$("printArea").innerHTML=html;$("printArea").classList.add("hidden")}}
+function showInvoice(print=true){if(!lastSale){toast("لا توجد فاتورة لطباعتها.");return}const html=invoiceHtml(lastSale);if(print)exportPdfHtml(html,"GESTO-Facture");else{$("printArea").innerHTML=html;$("printArea").classList.add("hidden")}}
 $("invoicePdf").onclick=()=>showInvoice(true);
 function debtDate(d){const v=d?.toDate?d.toDate():new Date(d||0);return isNaN(v)? "—":v.toLocaleString("ar-DZ")}
 function customerDebts(){
@@ -456,7 +459,7 @@ async function readDatabaseCollections(){const result={};for(const name of ["pro
 function encodeBackupValue(v){if(v&&typeof v.toDate==="function")return {__firestoreTimestamp:v.toDate().toISOString()};if(Array.isArray(v))return v.map(encodeBackupValue);if(v&&typeof v==="object"){const o={};for(const [k,val] of Object.entries(v))o[k]=encodeBackupValue(val);return o}return v}
 function decodeBackupValue(v){if(Array.isArray(v))return v.map(decodeBackupValue);if(v&&typeof v==="object"){if(typeof v.__firestoreTimestamp==="string")return Timestamp.fromDate(new Date(v.__firestoreTimestamp));const o={};for(const [k,val] of Object.entries(v))o[k]=decodeBackupValue(val);return o}return v}
 $("viewStorage").onclick=async()=>{const el=$("storageInfo");el.textContent="جارٍ حساب مساحة التخزين...";try{const estimate=await navigator.storage?.estimate?.(),data=await readDatabaseCollections(),fmt=n=>n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB";el.textContent=`عدد المنتجات: ${data.products.length} — عدد عمليات البيع: ${data.sales.length} — عدد سجلات الديون: ${data.debts.length}. مساحة التخزين المستخدمة على هذا المتصفح/النطاق: ${estimate?fmt(estimate.usage||0):"غير متاحة"}${estimate?.quota?" من "+fmt(estimate.quota):""}.`}catch(e){el.textContent="تعذر قراءة معلومات التخزين: "+e.message}};
-$("exportDatabase").onclick=async()=>{const btn=$("exportDatabase");btn.disabled=true;try{const data=await readDatabaseCollections(),backup={app:"Baqala-Djamel",version:1,exportedAt:new Date().toISOString(),collections:{}};for(const [name,rows] of Object.entries(data))backup.collections[name]=rows.map(encodeBackupValue);const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`Baqala-Djamel-Backup-${dateKey(new Date())}.json`;a.click();URL.revokeObjectURL(url);toast("تم تصدير قاعدة البيانات بنجاح.")}catch(e){toast("فشل التصدير: "+e.message)}finally{btn.disabled=false}};
+$("exportDatabase").onclick=async()=>{const btn=$("exportDatabase");btn.disabled=true;try{const data=await readDatabaseCollections(),backup={app:"Baqala-Djamel",version:1,exportedAt:new Date().toISOString(),collections:{}};for(const [name,rows] of Object.entries(data))backup.collections[name]=rows.map(encodeBackupValue);const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`GESTO-Backup-${dateKey(new Date())}.json`;a.click();URL.revokeObjectURL(url);toast("تم تصدير قاعدة البيانات بنجاح.")}catch(e){toast("فشل التصدير: "+e.message)}finally{btn.disabled=false}};
 $("importDatabase").onclick=()=>$("databaseFile").click();
 $("databaseFile").onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const backup=JSON.parse(await file.text()),cols=backup.collections;if(!cols||!["products","sales","debts"].every(k=>Array.isArray(cols[k])))throw new Error("ملف النسخة الاحتياطية غير صالح أو لا يحتوي المجموعات المطلوبة.");if(!confirm(`سيتم استبدال البيانات الحالية بالكامل بالنسخة المختارة (المنتجات: ${cols.products.length}، المبيعات: ${cols.sales.length}، الديون: ${cols.debts.length}). صدّر نسخة احتياطية أولاً. هل تريد المتابعة؟`))return;
 for(const name of ["products","sales","debts"]){const old=await getDocsFromServer(collection(db,name));for(let i=0;i<old.docs.length;i+=450){const batch=writeBatch(db);old.docs.slice(i,i+450).forEach(d=>batch.delete(d.ref));await batch.commit()}for(let i=0;i<cols[name].length;i+=450){const batch=writeBatch(db);cols[name].slice(i,i+450).forEach(row=>{if(!row.id)throw new Error("يوجد سجل دون معرّف داخل ملف النسخة.");const {id,...data}=row;batch.set(doc(db,name,String(id)),decodeBackupValue(data))});await batch.commit()}}
