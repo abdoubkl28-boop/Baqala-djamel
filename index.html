@@ -22,7 +22,7 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
  <div class="login-card">
   <div class="login-emoji">🧑‍🌾</div><div class="login-brand">بقالة جمال بوقلمون</div>
   <p class="muted" style="text-align:center">نظام تسيير المبيعات والمخزون</p>
-  <div class="field"><label>البريد الإلكتروني / اسم المستخدم</label><input id="loginEmail" type="email" autocomplete="username" placeholder="أدخل البريد الإلكتروني"></div>
+  <div class="field"><label>البريد الإلكتروني / اسم المستخدم</label><input id="loginEmail" type="text" inputmode="email" dir="ltr" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="أدخل البريد الإلكتروني"></div>
   <div class="field"><label>كلمة المرور</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="أدخل كلمة المرور"></div>
   <button id="loginBtn">تسجيل الدخول</button>
   <div id="loginError" class="notice hidden"></div>
@@ -66,6 +66,12 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
   <div id="searchResults" class="product-results hidden"></div>
   <div class="actions"><button id="openScannerSale" class="secondary">📷 مسح باركود / QR</button></div>
  </div>
+ <div class="card no-print">
+  <div class="inline" style="justify-content:space-between;flex-wrap:wrap">
+   <div><h3 style="margin:0 0 5px">إدارة الديون</h3><div class="muted">يمكنك فتح قائمة ديون الزبائن ومتابعة التسديد في أي وقت، حتى قبل تسجيل أول عملية بيع بالدين.</div></div>
+   <button type="button" class="secondary" id="openDebtsFromSales">فتح إدارة الديون</button>
+  </div>
+ </div>
  <div class="card">
   <h3>سلة المشتريات</h3>
   <div class="table-wrap"><table><thead><tr><th>اسم المنتج</th><th>الكمية</th><th>سعر الوحدة</th><th>المجموع</th><th class="no-print">حذف</th></tr></thead><tbody id="cartRows"></tbody></table></div>
@@ -94,21 +100,21 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
  <div class="card">
   <div class="inline" style="justify-content:space-between;flex-wrap:wrap"><h3>سجل المخزون</h3><button id="openStockRegister" class="secondary">فتح سجل المخزون</button></div>
   <div class="field"><label>بحث سريع في المخزون</label><input id="inventorySearch" class="search" placeholder="ابحث باسم المنتج أو الباركود..."></div>
-  <div class="table-wrap"><table><thead><tr><th>اسم المنتج</th><th>المخزون المتاح</th><th>شراء الوحدة</th><th>بيع الوحدة</th><th>الحالة</th><th>تعديل</th></tr></thead><tbody id="inventoryRows"></tbody></table></div>
+  <div class="table-wrap"><table><thead><tr><th>اسم المنتج</th><th>المخزون المتاح</th><th>شراء الوحدة</th><th>بيع الوحدة</th><th>الحالة</th><th>تعديل</th><th>حذف</th></tr></thead><tbody id="inventoryRows"></tbody></table></div>
  </div>
 </section>
 <section id="debts" class="page">
  <h2 class="section-title">إدارة الديون</h2>
  <div class="card metric"><div class="label">إجمالي الديون المستحقة</div><div class="value" id="totalOutstanding">0 دج</div><div class="muted">مجموع المبالغ المتبقية لدى جميع الزبائن</div></div>
  <div class="card no-print"><h3>استخراج قائمة الديون</h3><p class="muted">حفظ قائمة الديون الحالية بصيغة PDF.</p><div class="actions"><button id="debtsPdf">استخراج قائمة الديون PDF</button></div></div>
- <div class="card"><h3>قائمة ديون الزبائن</h3><p class="muted">تُحدّث القائمة تلقائياً عند تسجيل دين أو تسديده من أي جهاز.</p><div class="table-wrap"><table><thead><tr><th>اسم الزبون</th><th>المشتريات</th><th>المبلغ المدفوع</th><th>المبلغ المتبقي</th><th>إجراءات تسديد الدين</th></tr></thead><tbody id="debtsRows"></tbody></table></div></div>
+ <div class="card"><h3>قائمة ديون الزبائن</h3><p class="muted">تُحدّث القائمة تلقائياً عند تسجيل دين أو تسديده من أي جهاز.</p><div class="table-wrap"><table><thead><tr><th>اسم الزبون</th><th>المشتريات</th><th>المبلغ المدفوع</th><th>المبلغ المتبقي</th><th>إجراءات تسديد الدين</th><th>حذف</th></tr></thead><tbody id="debtsRows"></tbody></table></div></div>
 </section>
 <div id="printArea" class="hidden"></div>
 </main>
 </div>
 <div class="modal" id="stockModal"><div class="modal-box"><div class="modal-head"><h3>سجل المخزون</h3><button class="danger" data-close="stockModal">إغلاق</button></div>
  <div class="form-grid"><div class="field"><label>البحث الذكي</label><input id="modalStockSearch" class="search" placeholder="اسم المنتج..."></div><div class="field"><label>نمط المنتج</label><select id="filterMode"><option value="">الكل</option><option value="carton">كرتون</option><option value="unit">وحدة</option></select></div><div class="field"><label>حالة التوفر</label><select id="filterStatus"><option value="">الكل</option><option value="available">متوفر</option><option value="low">منخفض</option><option value="out">نافذ</option></select></div></div>
- <div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>المنتج</th><th>النمط</th><th>المتاح</th><th>سعر الشراء</th><th>سعر البيع</th><th>الحالة</th><th>تعديل</th></tr></thead><tbody id="modalStockRows"></tbody></table></div>
+ <div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>المنتج</th><th>النمط</th><th>المتاح</th><th>سعر الشراء</th><th>سعر البيع</th><th>الحالة</th><th>تعديل</th><th>حذف</th></tr></thead><tbody id="modalStockRows"></tbody></table></div>
 </div></div>
 <div class="modal" id="scannerModal"><div class="modal-box"><div class="modal-head"><h3>مسح الباركود أو QR</h3><button class="danger" data-close="scannerModal">إغلاق</button></div><video id="camera" class="camera" playsinline></video><p id="scanStatus" class="scanner-note">وجّه الكاميرا نحو الباركود أو رمز QR.</p><div class="actions"><button id="stopCamera" class="secondary">إيقاف الكاميرا</button></div><p class="scanner-note">يتطلب المسح متصفحاً يدعم BarcodeDetector واتصالاً آمناً HTTPS أو localhost. إذا لم يدعم جهازك ذلك، أدخل الرمز يدوياً في خانة الباركود.</p></div></div>
 <div class="modal" id="debtPurchasesModal"><div class="modal-box"><div class="modal-head"><h3 id="debtPurchasesTitle">مشتريات الزبون</h3><button class="danger" data-close="debtPurchasesModal">إغلاق</button></div><div id="debtPurchasesContent"></div></div></div>
@@ -116,7 +122,7 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, runTransaction, enableIndexedDbPersistence, getDocsFromServer } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, runTransaction, deleteDoc, enableIndexedDbPersistence, getDocsFromServer } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* ضع بيانات مشروع Firebase الخاص بك هنا من إعدادات Project settings > Your apps */
 const firebaseConfig = {
@@ -171,6 +177,7 @@ function leaveApp(){unsubs.forEach(f=>f());unsubs=[];user=null;$("appView").clas
 $("loginBtn").onclick=async()=>{if(!firebaseReady){toast("أكمل إعداد Firebase أولاً.");return}try{$("loginError").classList.add("hidden");await signInWithEmailAndPassword(auth,$("loginEmail").value.trim(),$("loginPassword").value)}catch(e){$("loginError").textContent="تعذر تسجيل الدخول: "+e.message;$("loginError").classList.remove("hidden")}};
 $("logoutBtn").onclick=()=>signOut(auth);
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+$("openDebtsFromSales").onclick=()=>showPage("debts");
 $("quickSale").onclick=()=>showPage("sales");$("quickProduct").onclick=()=>{showPage("inventory");$("pName").focus()};
 async function refreshAllData(){
  if(!user||!db)return;
@@ -209,19 +216,31 @@ function renderAlerts(){
 }
 function renderInventory(){
  const q=($("inventorySearch")?.value||"").trim().toLowerCase(),list=products.filter(p=>(p.name||"").toLowerCase().includes(q)||(p.code||"").toLowerCase().includes(q));
- $("inventoryRows").innerHTML=list.length?list.map(p=>`<tr><td>${safeText(p.name)}</td><td>${p.stock||0}</td><td>${money(p.unitCost)}</td><td>${money(p.sellPrice)}</td><td>${statusHtml(Number(p.stock)||0)}</td><td><button class="secondary" data-edit="${p.id}">تعديل</button></td></tr>`).join(""):'<tr><td colspan="6" class="empty">لا توجد منتجات مسجلة</td></tr>';
+ $("inventoryRows").innerHTML=list.length?list.map(p=>`<tr><td>${safeText(p.name)}</td><td>${p.stock||0}</td><td>${money(p.unitCost)}</td><td>${money(p.sellPrice)}</td><td>${statusHtml(Number(p.stock)||0)}</td><td><button class="secondary" data-edit="${p.id}">تعديل</button></td><td><button class="danger" data-delete-product="${p.id}">حذف نهائي</button></td></tr>`).join(""):'<tr><td colspan="7" class="empty">لا توجد منتجات مسجلة</td></tr>';
  $("inventoryRows").querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editProduct(b.dataset.edit));
+ $("inventoryRows").querySelectorAll("[data-delete-product]").forEach(b=>b.onclick=()=>deleteProduct(b.dataset.deleteProduct));
 }
 $("inventorySearch").oninput=renderInventory;
 function renderStockModal(){
  const q=($("modalStockSearch")?.value||"").toLowerCase(),mode=$("filterMode")?.value||"",st=$("filterStatus")?.value||"";
  const list=products.filter(p=>(p.name||"").toLowerCase().includes(q)||(p.code||"").toLowerCase().includes(q)).filter(p=>!mode||(mode==="carton"?Number(p.unitsPerCarton)>1:Number(p.unitsPerCarton)<=1)).filter(p=>!st||statusOf(Number(p.stock)||0)===st);
- $("modalStockRows").innerHTML=list.length?list.map(p=>`<tr><td>${safeText(p.name)}</td><td>${Number(p.unitsPerCarton)>1?"كرتون":"وحدة"}</td><td>${p.stock||0}</td><td>${money(p.unitCost)}</td><td>${money(p.sellPrice)}</td><td>${statusHtml(Number(p.stock)||0)}</td><td><button class="secondary" data-edit="${p.id}">تعديل</button></td></tr>`).join(""):'<tr><td colspan="7" class="empty">لا توجد نتائج</td></tr>';
+ $("modalStockRows").innerHTML=list.length?list.map(p=>`<tr><td>${safeText(p.name)}</td><td>${Number(p.unitsPerCarton)>1?"كرتون":"وحدة"}</td><td>${p.stock||0}</td><td>${money(p.unitCost)}</td><td>${money(p.sellPrice)}</td><td>${statusHtml(Number(p.stock)||0)}</td><td><button class="secondary" data-edit="${p.id}">تعديل</button></td><td><button class="danger" data-delete-product="${p.id}">حذف نهائي</button></td></tr>`).join(""):'<tr><td colspan="8" class="empty">لا توجد نتائج</td></tr>';
  $("modalStockRows").querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{$("stockModal").classList.remove("show");editProduct(b.dataset.edit)});
+ $("modalStockRows").querySelectorAll("[data-delete-product]").forEach(b=>b.onclick=()=>deleteProduct(b.dataset.deleteProduct));
 }
 ["modalStockSearch","filterMode","filterStatus"].forEach(id=>$(id).oninput=renderStockModal);
 $("openStockRegister").onclick=()=>$("stockModal").classList.add("show");
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.close).classList.remove("show"));
+async function deleteProduct(id){
+ const product=products.find(p=>p.id===id);if(!product)return;
+ if(!confirm(`هل تريد حذف المنتج «${product.name}» نهائياً من المخزون؟ لا يمكن التراجع عن هذا الإجراء.`))return;
+ try{
+  await deleteDoc(doc(db,"products",id));
+  cart=cart.filter(item=>item.id!==id);renderCart();
+  if($("editProductId").value===id)resetProduct();
+  toast("تم حذف المنتج نهائياً من المخزون.");
+ }catch(e){toast("تعذر حذف المنتج: "+e.message)}
+}
 function resetProduct(){["editProductId","pName","pCode","pCartonCost","pUnitCost","pSell"].forEach(id=>$(id).value="");$("pCartons").value=0;$("pUnitsPerCarton").value=1;$("pLoose").value=0;$("productFormTitle").textContent="إضافة منتج إلى المخزون"}
 $("resetProduct").onclick=resetProduct;
 function editProduct(id){const p=products.find(x=>x.id===id);if(!p)return;$("editProductId").value=id;$("pName").value=p.name||"";$("pCode").value=p.code||"";$("pCartons").value=0;$("pUnitsPerCarton").value=p.unitsPerCarton||1;$("pLoose").value=0;$("pCartonCost").value="";$("pUnitCost").value=p.unitCost??"";$("pSell").value=p.sellPrice??"";$("productFormTitle").textContent="تعديل المنتج — "+p.name;showPage("inventory");window.scrollTo({top:0,behavior:"smooth"})}
@@ -280,7 +299,7 @@ $("confirmDebtSale").onclick=async()=>{
    tx.set(saleRef,{items,total,profit,customer:customer.trim(),paymentType:"debt",createdAt:serverTimestamp(),createdBy:user.email||user.uid});
    tx.set(debtRef,{customer:customer.trim(),saleId:saleRef.id,items,total,paid:0,remaining:total,payments:[],createdAt:serverTimestamp(),createdBy:user.email||user.uid});
   });
-  cart=[];renderCart();toast("تم تسجيل البيع بالدين وتحديث المخزون.");showPage("debts");
+  cart=[];renderCart();toast("تم تسجيل البيع بالدين وتحديث المخزون. يمكنك فتح إدارة الديون من الزر المخصص أو من القائمة الرئيسية.");
  }catch(e){toast("لم يتم تسجيل الدين: "+e.message)}
 };
 function invoiceHtml(s){return `<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">🛒 بقالة جمال بوقلمون</h2><h3 style="text-align:center">فاتورة بيع</h3><p>التاريخ: ${s.date.toLocaleDateString("ar-DZ")} — الوقت: ${s.date.toLocaleTimeString("ar-DZ")}</p><p>المستخدم: ${safeText(s.createdBy||"")}</p><table style="width:100%;border-collapse:collapse"><thead><tr><th style="border:1px solid #ccc;padding:8px">المنتج</th><th style="border:1px solid #ccc;padding:8px">الكمية</th><th style="border:1px solid #ccc;padding:8px">سعر الوحدة</th><th style="border:1px solid #ccc;padding:8px">المجموع</th></tr></thead><tbody>${s.items.map(i=>`<tr><td style="border:1px solid #ccc;padding:8px">${safeText(i.name)}</td><td style="border:1px solid #ccc;padding:8px">${i.qty}</td><td style="border:1px solid #ccc;padding:8px">${money(i.price)}</td><td style="border:1px solid #ccc;padding:8px">${money(i.qty*i.price)}</td></tr>`).join("")}</tbody></table><h3>الإجمالي: ${money(s.total)}</h3></div>`}
@@ -303,9 +322,18 @@ function customerDebts(){
 function renderDebts(){
  const groups=customerDebts(),outstanding=groups.reduce((n,g)=>n+g.remaining,0);
  $("totalOutstanding").textContent=money(outstanding);
- $("debtsRows").innerHTML=groups.length?groups.map((g,i)=>`<tr><td>${safeText(g.customer)}</td><td><button class="secondary" data-purchases="${i}">قائمة المشتريات</button></td><td>${money(g.paid)}</td><td><strong>${money(g.remaining)}</strong></td><td>${g.remaining<=0?'<span class="status ok">خالص</span>':`<button data-pay="${i}">إجراءات تسديد الدين</button>`}</td></tr>`).join(""):'<tr><td colspan="5" class="empty">لا توجد ديون مسجلة</td></tr>';
+ $("debtsRows").innerHTML=groups.length?groups.map((g,i)=>`<tr><td>${safeText(g.customer)}</td><td><button class="secondary" data-purchases="${i}">قائمة المشتريات</button></td><td>${money(g.paid)}</td><td><strong>${money(g.remaining)}</strong></td><td>${g.remaining<=0?'<span class="status ok">خالص</span>':`<button data-pay="${i}">إجراءات تسديد الدين</button>`}</td><td><button class="danger" data-delete-debt-customer="${i}">حذف</button></td></tr>`).join(""):'<tr><td colspan="6" class="empty">لا توجد ديون مسجلة</td></tr>';
  $("debtsRows").querySelectorAll("[data-purchases]").forEach(b=>b.onclick=()=>showDebtPurchases(groups[Number(b.dataset.purchases)]));
  $("debtsRows").querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>payCustomerDebt(groups[Number(b.dataset.pay)]));
+ $("debtsRows").querySelectorAll("[data-delete-debt-customer]").forEach(b=>b.onclick=()=>deleteCustomerDebts(groups[Number(b.dataset.deleteDebtCustomer)]));
+}
+async function deleteCustomerDebts(group){
+ if(!group)return;
+ if(!confirm(`هل تريد حذف جميع سجلات ديون الزبون «${group.customer}» نهائياً من قائمة الديون؟ سيبقى سجل المبيعات الأصلي محفوظاً، ولن يمكن استرجاع سجلات الدين المحذوفة.`))return;
+ try{
+  await Promise.all(group.records.map(record=>deleteDoc(doc(db,"debts",record.id))));
+  toast("تم حذف سجلات ديون الزبون نهائياً من القائمة.");
+ }catch(e){toast("تعذر حذف سجلات الديون: "+e.message)}
 }
 function showDebtPurchases(group){
  $("debtPurchasesTitle").textContent="مشتريات الزبون: "+group.customer;
