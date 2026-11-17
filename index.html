@@ -42,7 +42,7 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
 </nav>
 <main>
 <section id="dashboard" class="page active">
- <h2 class="section-title">لوحة التحكم</h2>
+ <div class="inline" style="justify-content:space-between;flex-wrap:wrap"><h2 class="section-title">لوحة التحكم</h2><button id="openSettings" class="secondary" title="إعدادات قاعدة البيانات">⚙️ الإعدادات</button></div>
  <div class="grid">
   <div class="card metric"><div class="label">مبيعات اليوم</div><div class="value" id="daySales">0 دج</div><div class="profit">الفائدة: <span id="dayProfit">0 دج</span></div></div>
   <div class="card metric"><div class="label">مبيعات الأسبوع</div><div class="value" id="weekSales">0 دج</div><div class="profit">الفائدة: <span id="weekProfit">0 دج</span></div></div>
@@ -50,7 +50,7 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
   <div class="card metric"><div class="label">مبيعات السنة</div><div class="value" id="yearSales">0 دج</div><div class="profit">الفائدة: <span id="yearProfit">0 دج</span></div></div>
  </div>
  <div class="two">
-  <div class="card"><h3>مشتريات اليوم</h3><div class="table-wrap"><table><thead><tr><th>المنتج</th><th>الكمية</th><th>الوقت</th></tr></thead><tbody id="todayPurchases"></tbody></table></div></div>
+  <div class="card"><h3>مبيعات اليوم</h3><div class="table-wrap"><table><thead><tr><th>المنتج</th><th>الكمية</th><th>سعر الوحدة</th><th>الوقت</th><th>تعديل</th></tr></thead><tbody id="todayPurchases"></tbody></table></div><div class="bar"></div><div class="inline" style="justify-content:space-between"><strong>مجموع المبيعات:</strong><div class="total" id="todayItemsTotal">0 دج</div></div></div>
   <div class="card"><h3>تنبيهات المخزون</h3><div class="table-wrap"><table><thead><tr><th>المنتج</th><th>الكمية</th><th>الحالة</th></tr></thead><tbody id="stockAlerts"></tbody></table></div></div>
  </div>
  <div class="two">
@@ -118,11 +118,15 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
 </div></div>
 <div class="modal" id="scannerModal"><div class="modal-box"><div class="modal-head"><h3>مسح الباركود أو QR</h3><button class="danger" data-close="scannerModal">إغلاق</button></div><video id="camera" class="camera" playsinline></video><p id="scanStatus" class="scanner-note">وجّه الكاميرا نحو الباركود أو رمز QR.</p><div class="actions"><button id="stopCamera" class="secondary">إيقاف الكاميرا</button></div><p class="scanner-note">يتطلب المسح متصفحاً يدعم BarcodeDetector واتصالاً آمناً HTTPS أو localhost. إذا لم يدعم جهازك ذلك، أدخل الرمز يدوياً في خانة الباركود.</p></div></div>
 <div class="modal" id="debtPurchasesModal"><div class="modal-box"><div class="modal-head"><h3 id="debtPurchasesTitle">مشتريات الزبون</h3><button class="danger" data-close="debtPurchasesModal">إغلاق</button></div><div id="debtPurchasesContent"></div></div></div>
+<div class="modal" id="settingsModal"><div class="modal-box"><div class="modal-head"><h3>إعدادات قاعدة البيانات</h3><button class="danger" data-close="settingsModal">إغلاق</button></div>
+<div class="card"><h3>ذاكرة التخزين</h3><p id="storageInfo" class="muted">اضغط على الزر لعرض مساحة التخزين المستخدمة.</p><button id="viewStorage" class="secondary">عرض ذاكرة التخزين</button></div>
+<div class="card"><h3>نسخ قاعدة البيانات</h3><p class="muted">تصدير المنتجات والمبيعات والديون إلى ملف JSON، أو استيراد نسخة محفوظة سابقاً.</p><div class="actions"><button id="exportDatabase">تصدير قاعدة البيانات</button><button id="importDatabase" class="secondary">استيراد قاعدة البيانات</button><input id="databaseFile" type="file" accept=".json,application/json" class="hidden"></div></div>
+<div class="card"><h3>حذف قاعدة البيانات</h3><p class="muted">حذف جميع المنتجات والمبيعات والديون من قاعدة Firebase نهائياً. لا يمكن التراجع عن هذا الإجراء.</p><button id="deleteDatabase" class="danger">حذف كامل قاعدة البيانات</button></div></div></div>
 <div id="toast" class="toast"></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, runTransaction, deleteDoc, enableIndexedDbPersistence, getDocsFromServer } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, runTransaction, deleteDoc, enableIndexedDbPersistence, getDocsFromServer, writeBatch, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* ضع بيانات مشروع Firebase الخاص بك هنا من إعدادات Project settings > Your apps */
 const firebaseConfig = {
@@ -203,13 +207,45 @@ function periodSales(period){
 function totals(list){return list.reduce((a,s)=>({sales:a.sales+(Number(s.total)||0),profit:a.profit+(Number(s.profit)||0)}),{sales:0,profit:0})}
 function renderDashboard(){
  for(const p of ["day","week","month","year"]){const t=totals(periodSales(p));$(p+"Sales").textContent=money(t.sales);$(p+"Profit").textContent=money(t.profit)}
- const today=periodSales("day"), lines=today.flatMap(s=>(s.items||[]).map(i=>({...i,time:s.createdAt?.toDate?s.createdAt.toDate():new Date()})));
- $("todayPurchases").innerHTML=lines.length?lines.map(i=>`<tr><td>${safeText(i.name)}</td><td>${i.qty}</td><td>${i.time.toLocaleTimeString("ar-DZ",{hour:"2-digit",minute:"2-digit"})}</td></tr>`).join(""):'<tr><td colspan="3" class="empty">لا توجد مشتريات اليوم</td></tr>';
+ const today=periodSales("day"), lines=today.flatMap(s=>(s.items||[]).map((i,index)=>({...i,saleId:s.id,itemIndex:index,time:s.createdAt?.toDate?s.createdAt.toDate():new Date(s.createdAt||0)})));
+ $("todayPurchases").innerHTML=lines.length?lines.map(i=>`<tr><td>${safeText(i.name)}</td><td>${Number(i.qty)||0}</td><td>${money(i.price)}</td><td>${i.time.toLocaleTimeString("ar-DZ",{hour:"2-digit",minute:"2-digit"})}</td><td><button class="secondary" data-edit-sale-qty="${i.saleId}" data-item-index="${i.itemIndex}">تعديل</button></td></tr>`).join(""):'<tr><td colspan="5" class="empty">لا توجد مبيعات اليوم</td></tr>';
+ $("todayItemsTotal").textContent=money(lines.reduce((sum,i)=>sum+(Number(i.qty)||0)*(Number(i.price)||0),0));
+ $("todayPurchases").querySelectorAll("[data-edit-sale-qty]").forEach(b=>b.onclick=()=>editSoldQuantity(b.dataset.editSaleQty,Number(b.dataset.itemIndex)));
  const week=periodSales("week"),rank={};week.forEach(s=>(s.items||[]).forEach(i=>rank[i.name]=(rank[i.name]||0)+Number(i.qty)));
  const best=Object.entries(rank).sort((a,b)=>b[1]-a[1]).slice(0,10);
  $("bestSellers").innerHTML=best.length?best.map((x,i)=>`<tr><td>${i+1}</td><td>${safeText(x[0])}</td><td>${x[1]}</td></tr>`).join(""):'<tr><td colspan="3" class="empty">لا توجد مبيعات هذا الأسبوع</td></tr>';
  $("dailySummary").textContent=`عدد عمليات البيع اليوم: ${today.length} — إجمالي المبيعات: ${money(totals(today).sales)} — الفائدة: ${money(totals(today).profit)}`;
 }
+
+async function editSoldQuantity(saleId,itemIndex){
+ const sale=sales.find(x=>x.id===saleId),item=sale?.items?.[itemIndex];if(!sale||!item)return;
+ const entered=prompt(`الكمية الصحيحة للمنتج «${item.name}» (الكمية الحالية: ${item.qty}):`,String(item.qty));
+ if(entered===null)return;const newQty=Number(entered);
+ if(!Number.isInteger(newQty)||newQty<1){toast("أدخل كمية صحيحة أكبر من صفر.");return}
+ const oldQty=Number(item.qty)||0;if(newQty===oldQty)return;
+ const debt=debts.find(d=>d.saleId===saleId)||null;
+ try{
+  await runTransaction(db,async tx=>{
+   const saleRef=doc(db,"sales",saleId),productRef=doc(db,"products",item.id);
+   const saleSnap=await tx.get(saleRef),productSnap=await tx.get(productRef);
+   if(!saleSnap.exists()||!productSnap.exists())throw new Error("تعذر العثور على سجل البيع أو المنتج.");
+   let debtSnap=null,debtRef=null;if(debt){debtRef=doc(db,"debts",debt.id);debtSnap=await tx.get(debtRef)}
+   const currentSale=saleSnap.data(),currentItems=[...(currentSale.items||[])],currentItem=currentItems[itemIndex];
+   if(!currentItem||Number(currentItem.qty)!==oldQty)throw new Error("تغيرت بيانات البيع؛ حدّث البيانات ثم أعد المحاولة.");
+   const delta=newQty-oldQty,stock=Number(productSnap.data().stock)||0;
+   if(delta>0&&stock<delta)throw new Error("المخزون غير كافٍ لتصحيح الكمية بالزيادة.");
+   currentItems[itemIndex]={...currentItem,qty:newQty};
+   const total=currentItems.reduce((n,x)=>n+(Number(x.qty)||0)*(Number(x.price)||0),0);
+   const profit=currentItems.reduce((n,x)=>n+(Number(x.qty)||0)*((Number(x.price)||0)-(Number(x.cost)||0)),0);
+   if(debtSnap?.exists()&&total<(Number(debtSnap.data().paid)||0))throw new Error("لا يمكن جعل إجمالي البيع أقل من المبلغ الذي سدده الزبون.");
+   tx.update(productRef,{stock:stock-delta,updatedAt:serverTimestamp()});
+   tx.update(saleRef,{items:currentItems,total,profit,updatedAt:serverTimestamp()});
+   if(debtSnap?.exists()){const d=debtSnap.data();tx.update(debtRef,{items:currentItems,total,remaining:total-(Number(d.paid)||0),updatedAt:serverTimestamp()})}
+  });
+  toast("تم تعديل الكمية وتحديث المبيعات والمخزون"+(debt?" والديون":"")+".");
+ }catch(e){toast("تعذر تعديل الكمية: "+e.message)}
+}
+
 function renderAlerts(){
  const list=products.filter(p=>Number(p.stock)<=5);
  $("stockAlerts").innerHTML=list.length?list.map(p=>`<tr><td>${safeText(p.name)}</td><td>${p.stock||0}</td><td>${statusHtml(Number(p.stock)||0)}</td></tr>`).join(""):'<tr><td colspan="3" class="empty">لا توجد تنبيهات مخزون</td></tr>';
@@ -384,6 +420,19 @@ function stopScanner(){if(scannerTimer)clearTimeout(scannerTimer);if(cameraStrea
 $("openScannerSale").onclick=()=>openScanner("sale");$("scanProductCode").onclick=()=>openScanner("product");$("stopCamera").onclick=stopScanner;
 $("scannerModal").addEventListener("click",e=>{if(e.target===$("scannerModal")){stopScanner();$("scannerModal").classList.remove("show")}});
 window.addEventListener("beforeunload",stopScanner);
+
+$("openSettings").onclick=()=>$("settingsModal").classList.add("show");
+async function readDatabaseCollections(){const result={};for(const name of ["products","sales","debts"]){const snap=await getDocsFromServer(collection(db,name));result[name]=snap.docs.map(d=>({id:d.id,...d.data()}));}return result}
+function encodeBackupValue(v){if(v&&typeof v.toDate==="function")return {__firestoreTimestamp:v.toDate().toISOString()};if(Array.isArray(v))return v.map(encodeBackupValue);if(v&&typeof v==="object"){const o={};for(const [k,val] of Object.entries(v))o[k]=encodeBackupValue(val);return o}return v}
+function decodeBackupValue(v){if(Array.isArray(v))return v.map(decodeBackupValue);if(v&&typeof v==="object"){if(typeof v.__firestoreTimestamp==="string")return Timestamp.fromDate(new Date(v.__firestoreTimestamp));const o={};for(const [k,val] of Object.entries(v))o[k]=decodeBackupValue(val);return o}return v}
+$("viewStorage").onclick=async()=>{const el=$("storageInfo");el.textContent="جارٍ حساب مساحة التخزين...";try{const estimate=await navigator.storage?.estimate?.(),data=await readDatabaseCollections(),fmt=n=>n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB";el.textContent=`عدد المنتجات: ${data.products.length} — عدد عمليات البيع: ${data.sales.length} — عدد سجلات الديون: ${data.debts.length}. مساحة التخزين المستخدمة على هذا المتصفح/النطاق: ${estimate?fmt(estimate.usage||0):"غير متاحة"}${estimate?.quota?" من "+fmt(estimate.quota):""}.`}catch(e){el.textContent="تعذر قراءة معلومات التخزين: "+e.message}};
+$("exportDatabase").onclick=async()=>{const btn=$("exportDatabase");btn.disabled=true;try{const data=await readDatabaseCollections(),backup={app:"Baqala-Djamel",version:1,exportedAt:new Date().toISOString(),collections:{}};for(const [name,rows] of Object.entries(data))backup.collections[name]=rows.map(encodeBackupValue);const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`Baqala-Djamel-Backup-${dateKey(new Date())}.json`;a.click();URL.revokeObjectURL(url);toast("تم تصدير قاعدة البيانات بنجاح.")}catch(e){toast("فشل التصدير: "+e.message)}finally{btn.disabled=false}};
+$("importDatabase").onclick=()=>$("databaseFile").click();
+$("databaseFile").onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const backup=JSON.parse(await file.text()),cols=backup.collections;if(!cols||!["products","sales","debts"].every(k=>Array.isArray(cols[k])))throw new Error("ملف النسخة الاحتياطية غير صالح أو لا يحتوي المجموعات المطلوبة.");if(!confirm(`سيتم استبدال البيانات الحالية بالكامل بالنسخة المختارة (المنتجات: ${cols.products.length}، المبيعات: ${cols.sales.length}، الديون: ${cols.debts.length}). صدّر نسخة احتياطية أولاً. هل تريد المتابعة؟`))return;
+for(const name of ["products","sales","debts"]){const old=await getDocsFromServer(collection(db,name));for(let i=0;i<old.docs.length;i+=450){const batch=writeBatch(db);old.docs.slice(i,i+450).forEach(d=>batch.delete(d.ref));await batch.commit()}for(let i=0;i<cols[name].length;i+=450){const batch=writeBatch(db);cols[name].slice(i,i+450).forEach(row=>{if(!row.id)throw new Error("يوجد سجل دون معرّف داخل ملف النسخة.");const {id,...data}=row;batch.set(doc(db,name,String(id)),decodeBackupValue(data))});await batch.commit()}}
+await refreshAllData();toast("تم استيراد قاعدة البيانات بنجاح.")}catch(err){toast("تعذر الاستيراد: "+err.message)}finally{$("databaseFile").value=""}};
+$("deleteDatabase").onclick=async()=>{if(!confirm("سيتم حذف جميع المنتجات والمبيعات والديون نهائياً من Firebase. هل أنت متأكد؟"))return;if(!confirm("تأكيد أخير: لا يمكن استرجاع البيانات بعد الحذف. هل تريد المتابعة؟"))return;const btn=$("deleteDatabase");btn.disabled=true;try{for(const name of ["products","sales","debts"]){const snap=await getDocsFromServer(collection(db,name));for(let i=0;i<snap.docs.length;i+=450){const batch=writeBatch(db);snap.docs.slice(i,i+450).forEach(d=>batch.delete(d.ref));await batch.commit()}}await refreshAllData();toast("تم حذف جميع بيانات التطبيق من Firebase.")}catch(e){toast("تعذر إكمال الحذف: "+e.message)}finally{btn.disabled=false}};
+
 renderCart();startApp();
 </script>
 </body>
