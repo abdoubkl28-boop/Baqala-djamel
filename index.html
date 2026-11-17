@@ -126,7 +126,7 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, runTransaction, deleteDoc, enableIndexedDbPersistence, getDocsFromServer, writeBatch, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, onSnapshot, query, orderBy, serverTimestamp, runTransaction, deleteDoc, enableIndexedDbPersistence, getDocsFromServer, writeBatch, Timestamp, where } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 /* ضع بيانات مشروع Firebase الخاص بك هنا من إعدادات Project settings > Your apps */
 const firebaseConfig = {
@@ -145,7 +145,15 @@ let app,auth,db,user=null,products=[],sales=[],debts=[],cart=[],lastSale=null,un
 let firebaseReady=false, cameraStream=null, scanTarget="sale", scannerTimer=null;
 
 function toast(msg){$("toast").textContent=msg;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),3200)}
-function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));if(id==="inventory")renderInventory();if(id==="debts")renderDebts()}
+function showPage(id){
+ document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));
+ document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
+ // لا نعيد بناء محتوى الصفحات المخفية؛ نحدّث الصفحة التي يراها المستخدم فقط.
+ if(id==="dashboard"){renderDashboard();renderAlerts()}
+ else if(id==="sales"){renderCart();renderSearch()}
+ else if(id==="inventory")renderInventory();
+ else if(id==="debts")renderDebts();
+}
 function safeText(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function statusOf(q){return q<=0?"out":q<=5?"low":"available"}
 function statusHtml(q){let s=statusOf(q);return s==="out"?'<span class="status out">نافذ</span>':s==="low"?'<span class="status low">منخفض</span>':'<span class="status ok">متوفر</span>'}
@@ -171,10 +179,27 @@ function startApp(){
 function enterApp(){
  $("loginView").classList.add("hidden");$("appView").classList.remove("hidden");$("currentUser").textContent=user.email||"مستخدم";
  unsubs.forEach(f=>f());unsubs=[];
- unsubs.push(onSnapshot(collection(db,"products"),snap=>{products=snap.docs.map(d=>({id:d.id,...d.data()}));renderInventory();renderAlerts();renderStockModal();renderSearch()} ,e=>toast("خطأ في قراءة المخزون: "+e.message)));
- unsubs.push(onSnapshot(query(collection(db,"sales"),orderBy("createdAt","desc")),snap=>{sales=snap.docs.map(d=>({id:d.id,...d.data()}));renderDashboard();renderSearch()},e=>toast("خطأ في قراءة المبيعات: "+e.message)));
- // متابعة الديون لحظياً حتى تظهر عمليات البيع بالدين والتسديد على جميع الأجهزة.
- unsubs.push(onSnapshot(query(collection(db,"debts"),orderBy("createdAt","desc")),snap=>{debts=snap.docs.map(d=>({id:d.id,...d.data()}));renderDebts()},e=>toast("خطأ في قراءة الديون: "+e.message)));
+ unsubs.push(onSnapshot(collection(db,"products"),snap=>{
+  products=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const active=document.querySelector(".page.active")?.id;
+  if(active==="inventory")renderInventory();
+  if(active==="dashboard")renderAlerts();
+  if(active==="sales")renderSearch();
+  if($("stockModal").classList.contains("show"))renderStockModal();
+ },e=>toast("خطأ في قراءة المخزون: "+e.message)));
+ // لوحة التحكم تعرض إحصاءات السنة الحالية فقط؛ لا حاجة لتنزيل سنوات قديمة في الذاكرة.
+ const salesFromYear=query(collection(db,"sales"),where("createdAt",">=",Timestamp.fromDate(new Date(new Date().getFullYear(),0,1))),orderBy("createdAt","desc"));
+ unsubs.push(onSnapshot(salesFromYear,snap=>{
+  sales=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const active=document.querySelector(".page.active")?.id;
+  if(active==="dashboard")renderDashboard();
+  if(active==="sales")renderSearch();
+ },e=>toast("خطأ في قراءة المبيعات: "+e.message)));
+ // متابعة الديون لحظياً، مع تأجيل بناء الجدول حتى فتح صفحة الديون.
+ unsubs.push(onSnapshot(query(collection(db,"debts"),orderBy("createdAt","desc")),snap=>{
+  debts=snap.docs.map(d=>({id:d.id,...d.data()}));
+  if(document.querySelector(".page.active")?.id==="debts")renderDebts();
+ },e=>toast("خطأ في قراءة الديون: "+e.message)));
  showPage("dashboard");
 }
 function leaveApp(){unsubs.forEach(f=>f());unsubs=[];user=null;$("appView").classList.add("hidden");$("startupView").classList.add("hidden");$("loginView").classList.remove("hidden")}
@@ -189,13 +214,18 @@ async function refreshAllData(){
  try{
   const [productSnap,salesSnap,debtsSnap]=await Promise.all([
    getDocsFromServer(collection(db,"products")),
-   getDocsFromServer(query(collection(db,"sales"),orderBy("createdAt","desc"))),
+   getDocsFromServer(query(collection(db,"sales"),where("createdAt",">=",Timestamp.fromDate(new Date(new Date().getFullYear(),0,1))),orderBy("createdAt","desc"))),
    getDocsFromServer(query(collection(db,"debts"),orderBy("createdAt","desc")))
   ]);
   products=productSnap.docs.map(d=>({id:d.id,...d.data()}));
   sales=salesSnap.docs.map(d=>({id:d.id,...d.data()}));
   debts=debtsSnap.docs.map(d=>({id:d.id,...d.data()}));
-  renderInventory();renderAlerts();renderStockModal();renderSearch();renderDashboard();renderDebts();
+  const active=document.querySelector(".page.active")?.id;
+  if(active==="dashboard"){renderDashboard();renderAlerts()}
+  else if(active==="sales"){renderCart();renderSearch()}
+  else if(active==="inventory")renderInventory();
+  else if(active==="debts")renderDebts();
+  if($("stockModal").classList.contains("show"))renderStockModal();
   toast("تم تحديث البيانات من الخادم بنجاح.");
  }catch(e){toast("تعذر تحديث البيانات. تحقق من الإنترنت: "+e.message)}
  finally{if(btn){btn.disabled=false;btn.textContent="↻ تحديث البيانات"}}
