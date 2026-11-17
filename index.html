@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#14532d">
-<title>بقالة جمال بوقلمون</title>
+<title>GESTO</title>
 <style>
 :root{--green:#14532d;--green2:#166534;--bg:#f4f7f5;--card:#fff;--text:#17211b;--muted:#64748b;--line:#e2e8f0;--yellow:#fef3c7;--red:#fee2e2;--shadow:0 5px 22px #0f172a0b}
 *{box-sizing:border-box}html,body{width:100%;max-width:100%;min-height:100%;margin:0;overflow-x:hidden}body{background:var(--bg);font-family:Tahoma,Arial,sans-serif;color:var(--text)}#appView{width:100%;max-width:100%;min-height:100vh;min-height:100dvh;overflow-x:hidden}header,nav,main{width:100%;max-width:100%;min-width:0}main{overflow-x:hidden}.page,.card,.grid,.two{min-width:0}button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:11px 15px;background:var(--green);color:white;font-weight:700}button:hover{filter:brightness(1.08)}button.secondary{background:#e8f0eb;color:var(--green)}button.danger{background:#b91c1c}button.warning{background:#d97706}button:disabled{opacity:.5;cursor:not-allowed}
@@ -17,10 +17,10 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
 </style>
 </head>
 <body>
-<section id="startupView" class="login" style="background:var(--bg)"><div class="login-card" style="text-align:center"><div class="login-emoji">🛒</div><div class="login-brand">بقالة جمال بوقلمون</div><p class="muted">جارٍ فتح التطبيق...</p></div></section>
+<section id="startupView" class="login" style="background:var(--bg)"><div class="login-card" style="text-align:center"><div class="login-emoji">🛒</div><div class="login-brand">GESTO</div><p class="muted">جارٍ فتح التطبيق...</p></div></section>
 <section id="loginView" class="login hidden">
  <div class="login-card">
-  <div class="login-emoji">🧑‍🌾</div><div class="login-brand">بقالة جمال بوقلمون</div>
+  <div class="login-emoji">🧑‍🌾</div><div class="login-brand">GESTO</div>
   <p class="muted" style="text-align:center">نظام تسيير المبيعات والمخزون</p>
   <div class="field"><label>البريد الإلكتروني / اسم المستخدم</label><input id="loginEmail" type="text" inputmode="email" dir="ltr" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="أدخل البريد الإلكتروني"></div>
   <div class="field"><label>كلمة المرور</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="أدخل كلمة المرور"></div>
@@ -31,7 +31,7 @@ main{max-width:1400px;margin:auto;padding:22px 4% 50px}.page{display:none}.page.
 </section>
 <div id="appView" class="hidden">
 <header>
- <div><div class="brand">🛒 بقالة جمال بوقلمون</div><div class="sub">مرحباً، <span id="currentUser">—</span></div></div>
+ <div><div class="brand">🛒 GESTO</div><div class="sub">مرحباً، <span id="currentUser">—</span></div></div>
  <div class="top-actions"><button id="refreshData" class="secondary">↻ تحديث البيانات</button><button id="quickSale">＋ بيع جديد</button><button id="quickProduct">＋ إضافة منتج</button><button id="logoutBtn">تسجيل الخروج</button></div>
 </header>
 <nav class="no-print">
@@ -368,13 +368,13 @@ $("confirmDebtSale").onclick=async()=>{
   cart=[];renderCart();toast("تم تسجيل البيع بالدين وتحديث المخزون. يمكنك فتح إدارة الديون من الزر المخصص أو من القائمة الرئيسية.");
  }catch(e){toast("لم يتم تسجيل الدين: "+e.message)}
 };
-function invoiceHtml(s){return `<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">🛒 بقالة جمال بوقلمون</h2><h3 style="text-align:center">فاتورة بيع</h3><p>التاريخ: ${s.date.toLocaleDateString("ar-DZ")} — الوقت: ${s.date.toLocaleTimeString("ar-DZ")}</p><p>المستخدم: ${safeText(s.createdBy||"")}</p><table style="width:100%;border-collapse:collapse"><thead><tr><th style="border:1px solid #ccc;padding:8px">المنتج</th><th style="border:1px solid #ccc;padding:8px">الكمية</th><th style="border:1px solid #ccc;padding:8px">سعر الوحدة</th><th style="border:1px solid #ccc;padding:8px">المجموع</th></tr></thead><tbody>${s.items.map(i=>`<tr><td style="border:1px solid #ccc;padding:8px">${safeText(i.name)}</td><td style="border:1px solid #ccc;padding:8px">${i.qty}</td><td style="border:1px solid #ccc;padding:8px">${money(i.price)}</td><td style="border:1px solid #ccc;padding:8px">${money(i.qty*i.price)}</td></tr>`).join("")}</tbody></table><h3>الإجمالي: ${money(s.total)}</h3></div>`}
+function invoiceHtml(s){return `<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">🛒 GESTO</h2><h3 style="text-align:center">فاتورة بيع</h3><p>التاريخ: ${s.date.toLocaleDateString("ar-DZ")} — الوقت: ${s.date.toLocaleTimeString("ar-DZ")}</p><p>المستخدم: ${safeText(s.createdBy||"")}</p><table style="width:100%;border-collapse:collapse"><thead><tr><th style="border:1px solid #ccc;padding:8px">المنتج</th><th style="border:1px solid #ccc;padding:8px">الكمية</th><th style="border:1px solid #ccc;padding:8px">سعر الوحدة</th><th style="border:1px solid #ccc;padding:8px">المجموع</th></tr></thead><tbody>${s.items.map(i=>`<tr><td style="border:1px solid #ccc;padding:8px">${safeText(i.name)}</td><td style="border:1px solid #ccc;padding:8px">${i.qty}</td><td style="border:1px solid #ccc;padding:8px">${money(i.price)}</td><td style="border:1px solid #ccc;padding:8px">${money(i.qty*i.price)}</td></tr>`).join("")}</tbody></table><h3>الإجمالي: ${money(s.total)}</h3></div>`}
 function exportPdfHtml(html,fileName){
  if(window.AndroidPrint&&typeof window.AndroidPrint.printHtml==="function"){
   try{const encoded=btoa(unescape(encodeURIComponent(html)));window.AndroidPrint.printHtml(encoded,fileName||"Baqala-Djamel");toast("تم تجهيز المستند. اختر «حفظ بصيغة PDF» من نافذة الطباعة.");return}
   catch(e){toast("تعذر تجهيز PDF: "+e.message);return}
  }
- const area=$("printArea"),oldTitle=document.title;area.innerHTML=html;area.classList.remove("hidden");document.title=fileName||"بقالة جمال";
+ const area=$("printArea"),oldTitle=document.title;area.innerHTML=html;area.classList.remove("hidden");document.title=fileName||"GESTO";
  window.print();area.classList.add("hidden");document.title=oldTitle;
 }
 function showInvoice(print=true){if(!lastSale){toast("لا توجد فاتورة لطباعتها.");return}const html=invoiceHtml(lastSale);if(print)exportPdfHtml(html,"فاتورة-بقالة-جمال");else{$("printArea").innerHTML=html;$("printArea").classList.add("hidden")}}
@@ -425,19 +425,19 @@ async function payCustomerDebt(group){
  }catch(e){toast("تعذر تسجيل التسديد: "+e.message)}
 }
 function printDebtPayment(r){
- const html=`<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">بقالة جمال بوقلمون</h2><h3 style="text-align:center">وصل تسديد دين</h3><p>الزبون: ${safeText(r.customer)}</p><p>التاريخ: ${r.date.toLocaleString("ar-DZ")}</p><h3>المبلغ المدفوع: ${money(r.amount)}</h3><p>عدد الديون التي شملها التسديد: ${r.allocations.length}</p><p>شكراً لكم</p></div>`;
+ const html=`<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">GESTO</h2><h3 style="text-align:center">وصل تسديد دين</h3><p>الزبون: ${safeText(r.customer)}</p><p>التاريخ: ${r.date.toLocaleString("ar-DZ")}</p><h3>المبلغ المدفوع: ${money(r.amount)}</h3><p>عدد الديون التي شملها التسديد: ${r.allocations.length}</p><p>شكراً لكم</p></div>`;
  exportPdfHtml(html,"وصل-تسديد-دين");
 }
 function printDebts(){
  const groups=customerDebts(),total=groups.reduce((n,g)=>n+g.remaining,0);
  const rows=groups.map(g=>`<tr><td>${safeText(g.customer)}</td><td>${money(g.total)}</td><td>${money(g.paid)}</td><td>${money(g.remaining)}</td></tr>`).join("");
- const html=`<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">بقالة جمال بوقلمون</h2><h3>قائمة الديون المستحقة</h3><p>التاريخ: ${new Date().toLocaleString("ar-DZ")}</p><h3>إجمالي الديون المتبقية: ${money(total)}</h3><table style="width:100%;border-collapse:collapse"><thead><tr><th>الزبون</th><th>إجمالي الدين</th><th>المدفوع</th><th>المتبقي</th></tr></thead><tbody>${rows||'<tr><td colspan="4">لا توجد ديون</td></tr>'}</tbody></table></div>`;
+ const html=`<div dir="rtl" style="font-family:Tahoma,Arial;padding:20px;color:#111"><h2 style="text-align:center">GESTO</h2><h3>قائمة الديون المستحقة</h3><p>التاريخ: ${new Date().toLocaleString("ar-DZ")}</p><h3>إجمالي الديون المتبقية: ${money(total)}</h3><table style="width:100%;border-collapse:collapse"><thead><tr><th>الزبون</th><th>إجمالي الدين</th><th>المدفوع</th><th>المتبقي</th></tr></thead><tbody>${rows||'<tr><td colspan="4">لا توجد ديون</td></tr>'}</tbody></table></div>`;
  exportPdfHtml(html,"قائمة-ديون-الزبائن");
 }
 $("debtsPdf").onclick=printDebts;
 function printDaily(){
  const list=periodSales("day"),t=totals(list),lines=list.flatMap(s=>(s.items||[]).map(i=>({...i,when:s.createdAt?.toDate?s.createdAt.toDate():new Date()})));
- const html=`<div dir="rtl" style="font-family:Tahoma;padding:20px"><h2>بقالة جمال بوقلمون — تقرير المبيعات اليومي</h2><p>التاريخ: ${new Date().toLocaleDateString("ar-DZ")}</p><h3>إجمالي المبيعات: ${money(t.sales)} | الفائدة: ${money(t.profit)}</h3><table style="width:100%;border-collapse:collapse"><tr><th>المنتج</th><th>الكمية</th><th>السعر</th><th>الوقت</th></tr>${lines.map(i=>`<tr><td>${safeText(i.name)}</td><td>${i.qty}</td><td>${money(i.price*i.qty)}</td><td>${i.when.toLocaleTimeString("ar-DZ")}</td></tr>`).join("")}</table></div>`;
+ const html=`<div dir="rtl" style="font-family:Tahoma;padding:20px"><h2>GESTO — تقرير المبيعات اليومي</h2><p>التاريخ: ${new Date().toLocaleDateString("ar-DZ")}</p><h3>إجمالي المبيعات: ${money(t.sales)} | الفائدة: ${money(t.profit)}</h3><table style="width:100%;border-collapse:collapse"><tr><th>المنتج</th><th>الكمية</th><th>السعر</th><th>الوقت</th></tr>${lines.map(i=>`<tr><td>${safeText(i.name)}</td><td>${i.qty}</td><td>${money(i.price*i.qty)}</td><td>${i.when.toLocaleTimeString("ar-DZ")}</td></tr>`).join("")}</table></div>`;
  exportPdfHtml(html,"تقرير-المبيعات-اليومي");
 }
 $("dailyPdf").onclick=printDaily;
